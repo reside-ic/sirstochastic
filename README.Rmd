@@ -61,15 +61,15 @@ summary(cars)
 ```
 
 
-##An example of an SIR plot is:
-##
-##```{r stochastic, echo = FALSE}
-##plot(stochastic)
-##```
+## An example of an SIR plot is:
+!["SIR Plot"](C:/Users/cabri/Documents/Github/sirstochastic/figures/README-stochastic-1.png)
+
 ```{r pressure, echo=FALSE}
 plot(pressure)
 ```
 ## License
+```
 [MIT](https://choosealicense.com/licenses/mit/)
+```
 
 In that case, don't forget to commit and push the resulting figure files, so they display on GitHub!
