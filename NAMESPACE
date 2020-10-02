@@ -2,3 +2,4 @@
 
 export(display)
 export(model)
+export(themodel)

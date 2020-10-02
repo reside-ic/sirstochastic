@@ -26,7 +26,6 @@ You can install the released version of sirstochastic from [CRAN](https://CRAN.R
 
 ``` r
 install.packages("sirstochastic")
-install.packages("png")
 ```
 
 And the development version from [GitHub](https://github.com/) with:
@@ -48,10 +47,11 @@ and these are converted to the discrete stochastic model by imagining that in a 
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example which shows you how to solve a common problem. This is run for 10000 iterations, time step 0.01
 
-```{r SIR example}
-library(sirstochastic)
+```{r echo=FALSE, fig,cap = "SIR simulation, N= 10000, dt = 0.01"}
+dt <- 0.01
+sirstochastic::themodel(dt)
 ```
 
 What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
@@ -60,11 +60,7 @@ What is special about using `README.Rmd` instead of just `README.md`? You can in
 summary(cars)
 ```
 
-```{r echo=FALSE, fig,cap = "SIR simulation"}
-library(sirstochastic)
-dt <- 0.01
-themodel(dt)
-```
+
 ## License
 ```
 [MIT](https://choosealicense.com/licenses/mit/)
