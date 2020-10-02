@@ -7,7 +7,8 @@
 
 <!-- badges: end -->
 
-The goal of sirstochastic is to …
+The goal of package sirstochastic is to run simulations of single and
+multiple iterations of the SIR stochastic model.
 
 ## Installation
 
@@ -16,6 +17,7 @@ You can install the released version of sirstochastic from
 
 ``` r
 install.packages("sirstochastic")
+install.packages("png")
 ```
 
 And the development version from [GitHub](https://github.com/) with:
@@ -31,6 +33,7 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(sirstochastic)
+library(png)
 ## basic example code
 ```
 
