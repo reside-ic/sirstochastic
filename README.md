@@ -31,8 +31,11 @@ devtools::install_github("reside-ic/sirstochastic")
 
 The equations defining the model are:
 
-\#\#dS/dt = - beta \* S \* I / N \#\#dI/dt = beta \* S \* I / N - sigma
-\* I \#\#dR/dt = sigma \* I
+## dS/dt = - beta \* S \* I / N
+
+## dI/dt = beta \* S \* I / N - sigma \* I
+
+## dR/dt = sigma \* I
 
 and these are converted to the discrete stochastic model by imagining
 that in a small period of time `dt` the chance of an event happening
