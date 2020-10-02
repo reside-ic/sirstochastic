@@ -50,7 +50,7 @@ and these are converted to the discrete stochastic model by imagining that in a 
 
 This is a basic example which shows you how to solve a common problem:
 
-```{r example}
+```{r SIR example}
 library(sirstochastic)
 ```
 
@@ -60,12 +60,10 @@ What is special about using `README.Rmd` instead of just `README.md`? You can in
 summary(cars)
 ```
 
-
-## An example of an SIR plot is:
-!["SIR Plot"](C:/Users/cabri/Documents/Github/sirstochastic/figures/README-stochastic-1.png)
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r echo=FALSE, fig,cap = "SIR simulation"}
+library(sirstochastic)
+dt <- 0.01
+themodel(dt)
 ```
 ## License
 ```
