@@ -47,9 +47,6 @@ draw with `n = I` and `p = sigma * dt`. Note, N = S + I + R.
 This is a basic example which shows you how to solve a common problem.
 The model is run once for 10,000 iterations with a time step of 0.01
 
-    #> Warning in par(mar = c(4.1, 5.1, 0.5, 0.5), las = 1, new = TRUE): calling
-    #> par(new=TRUE) with no plot
-
 <div class="figure" style="text-align: center">
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" alt="SIR simulation run once, N = 10,000 and dt = 0.01" width="100%" />
@@ -62,11 +59,8 @@ SIR simulation run once, N = 10,000 and dt = 0.01
 
 </div>
 
-This time the model is run ten times for 10,000 iterations with a time
-step of 0.01 using the same code.
-
-    #> Warning in par(mar = c(4.1, 5.1, 0.5, 0.5), las = 1, new = TRUE): calling
-    #> par(new=TRUE) with no plot
+This time the model is run a hundred times for 10,000 iterations with a
+time step of 0.01 using the same code.
 
 <div class="figure" style="text-align: center">
 
