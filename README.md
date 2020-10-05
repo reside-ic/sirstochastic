@@ -47,32 +47,12 @@ draw with `n = I` and `p = sigma * dt`. Note, N = S + I + R.
 This is a basic example which shows you how to solve a common problem.
 The model is run once for 10,000 iterations with a time step of 0.01
 
-<div class="figure" style="text-align: center">
-
-<img src="man/figures/README-unnamed-chunk-2-1.png" alt="SIR simulation run once, N = 10,000 and dt = 0.01" width="100%" />
-
-<p class="caption">
-
-SIR simulation run once, N = 10,000 and dt = 0.01
-
-</p>
-
-</div>
+<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
 This time the model is run a hundred times for 10,000 iterations with a
 time step of 0.01 using the same code.
 
-<div class="figure" style="text-align: center">
-
-<img src="man/figures/README-unnamed-chunk-3-1.png" alt="SIR simulation run 100 times, N = 10,000 and dt = 0.01" width="100%" />
-
-<p class="caption">
-
-SIR simulation run 100 times, N = 10,000 and dt = 0.01
-
-</p>
-
-</div>
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 
 ## License
 
