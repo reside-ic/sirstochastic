@@ -45,13 +45,41 @@ draw with `n = I` and `p = sigma * dt`. Note, N = S + I + R.
 ## Example
 
 This is a basic example which shows you how to solve a common problem.
-The model is run for 10,000 iterations, time step 0.01
+The model is run once for 10,000 iterations with a time step of 0.01
 
-<img src="man/figures/README-fig-1.png" width="100%" />
+<div class="figure">
+
+<img src="man/figures/README-unnamed-chunk-2-1.png" alt="SIR simulation run once, N= 10000, dt = 0.01" width="100%" />
+
+<p class="caption">
+
+SIR simulation run once, N= 10000, dt = 0.01
+
+</p>
+
+</div>
+
+This time the model is run ten times for 10,000 iterations with a time
+step of 0.01 using the same code.
+
+    #> Warning in par(mar = c(4.1, 5.1, 0.5, 0.5), las = 1, new = TRUE): calling
+    #> par(new=TRUE) with no plot
+
+<div class="figure">
+
+<img src="man/figures/README-unnamed-chunk-3-1.png" alt="SIR simulation run 10 times, N= 10000, dt = 0.01" width="100%" />
+
+<p class="caption">
+
+SIR simulation run 10 times, N= 10000, dt = 0.01
+
+</p>
+
+</div>
 
 ## License
 
-    [MIT](https://choosealicense.com/licenses/mit/)
+MIT © Imperial College of Science, Technology and Medicine
 
 In that case, don’t forget to commit and push the resulting figure
 files, so they display on GitHub\!

@@ -47,9 +47,9 @@ and these are converted to the discrete stochastic model by imagining that in a 
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem. The model is run for 10,000 iterations, time step 0.01
+This is a basic example which shows you how to solve a common problem. The model is run once for 10,000 iterations with a time step of 0.01
 
-```{r echo=FALSE, fig,cap = "SIR simulation, N= 10000, dt = 0.01"}
+```{r echo=FALSE, fig.cap = "SIR simulation run once, N= 10000, dt = 0.01"}
 dt <- 0.01
 results <- sirstochastic::themodel(dt)
 
@@ -59,9 +59,25 @@ matplot(results$time[1:10000], cbind(results$S[1:10000], results$I[1:10000], res
 legend("topright", inset = 0.05, lwd = 1, col = sir_col, legend = c("S", "I", "R"))
 ```
 
+This time the model is run ten times for 10,000 iterations with a time step of 0.01 using the same code.
+
+```{r echo=FALSE, fig.cap = "SIR simulation run 10 times, N= 10000, dt = 0.01"}
+dt <- 0.01
+count <- 1:10
+
+for (j in count)
+  {
+    results <- sirstochastic::themodel(dt)
+    
+    sir_col <- c("#8c8cd9", "#cc0044", "#999966")
+    par(mar = c(4.1, 5.1, 0.5, 0.5), las = 1, new=TRUE)
+    matplot(results$time[1:10000], cbind(results$S[1:10000], results$I[1:10000], results$R[1:10000]), type = "l", col = sir_col, lty = 1, xlab="time", ylab="S, I, R")
+    legend("topright", inset = 0.05, lwd = 1, col = sir_col, legend = c("S", "I", "R"))
+}
+```
+
 ## License
-```
-[MIT](https://choosealicense.com/licenses/mit/)
-```
+
+MIT © Imperial College of Science, Technology and Medicine
 
 In that case, don't forget to commit and push the resulting figure files, so they display on GitHub!
