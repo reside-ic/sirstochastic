@@ -11,6 +11,8 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+knitr::include_graphics("man/figures/README-unnamed-chunk-2-1.png")
+knitr::include_graphics("man/figures/README-unnamed-chunk-3-1.png")
 ```
 
 # sirstochastic
