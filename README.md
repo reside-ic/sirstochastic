@@ -45,7 +45,7 @@ draw with `n = I` and `p = sigma * dt`. Note, N = S + I + R.
 ## Example
 
 This is a basic example which shows you how to solve a common problem.
-This is run for 10000 iterations, time step 0.01
+Th model is run for 10000 iterations, time step 0.01
 
 <img src="man/figures/README-fig-1.png" width="100%" />
 

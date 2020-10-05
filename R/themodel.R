@@ -8,7 +8,9 @@
 #'
 #' @examples
 #' themodel(dt)
+#' displaythemodel(dt)
 themodel <- function(dt) {
+  warnings()
   beta <- 0.5 # contact rate
   nu <- 0.3 # recovery
   mu <- 0.001 # death rate
@@ -32,7 +34,7 @@ themodel <- function(dt) {
   yI[1] <- if (I0_at_steady_state > 0) round(I_star) else I0
   zR[1] <- if (I0_at_steady_state > 0) N - round(I_star) - round(S_star) else N - I0 - S0
 
-  dt <- 0.01
+  ##dt <- 0.01
 
   count <- seq(1, 10000, by=1)
   for (j in count)
@@ -72,17 +74,17 @@ themodel <- function(dt) {
       }
     }
   }
+  time <- seq(0, 100, by = dt)
+  list(S = xS, I = yI, R = zR, time = time)
+}
 
-  time <- seq(0, 100, by = 0.01)
-  newtime <- time(1:10000)
-  newxS <- xS[1:10000]
-  newyI <- yI[1:10000]
-  newzR <- zR[1:10000]
+displaythemodel <- function(results) {
+  warnings()
 
   sir_col <- c("#8c8cd9", "#cc0044", "#999966")
   par(mar = c(4.1, 5.1, 0.5, 0.5), las = 1)
-  matplot(newtime, cbind(newxS, newyI, newzR), type = "l", col = sir_col, lty = 1)
-  legend("topright", lwd = 1, col = sir_col, legend = c("S", "I", "R"), bty = "n")
+  matplot(results$time[1:10000], cbind(results$S[1:10000], results$I[1:10000], results$R[1:10000]), type = "l", col = sir_col, lty = 1, xlab="time", pch=c(1,16,17))
+  legend(1, lwd = 1, col = sir_col, legend = c("S", "I", "R"))
 
 }
 

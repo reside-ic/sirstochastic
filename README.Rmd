@@ -47,11 +47,14 @@ and these are converted to the discrete stochastic model by imagining that in a 
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem. This is run for 10000 iterations, time step 0.01
+This is a basic example which shows you how to solve a common problem. Th model is run for 10000 iterations, time step 0.01
 
 ```{r echo=FALSE, fig,cap = "SIR simulation, N= 10000, dt = 0.01"}
 dt <- 0.01
-sirstochastic::themodel(dt)
+results <- sirstochastic::themodel(dt)
+
+sirstochastic:::displaythemodel(results)
+#plot(results)
 ```
 
 What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
