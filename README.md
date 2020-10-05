@@ -49,7 +49,19 @@ The model is run once for 10,000 iterations with a time step of 0.01
 
 <div class="figure" style="text-align: center">
 
-<img src="man/figures/README-unnamed-chunk-2-1.png" alt="SIR simulation run once, N = 10,000 and dt = 0.01" width="0.95\linewidth" />
+<img src="man/figures/README-unnamed-chunk-2-1.png" alt="SIR simulation run once, N = 10,000 and dt = 0.01" width="100%" />
+
+<p class="caption">
+
+SIR simulation run once, N = 10,000 and dt = 0.01
+
+</p>
+
+</div>
+
+<div class="figure" style="text-align: center">
+
+<img src="man/figures/README-unnamed-chunk-2-2.png" alt="SIR simulation run once, N = 10,000 and dt = 0.01" width="100%" />
 
 <p class="caption">
 
