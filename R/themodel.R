@@ -10,7 +10,7 @@
 #' themodel(dt)
 #' displaythemodel(dt)
 themodel <- function(dt) {
-  warnings()
+
   beta <- 0.5 # contact rate
   nu <- 0.3 # recovery
   mu <- 0.001 # death rate
@@ -33,8 +33,6 @@ themodel <- function(dt) {
   xS[1] <- if (I0_at_steady_state > 0) round(S_star) else S0
   yI[1] <- if (I0_at_steady_state > 0) round(I_star) else I0
   zR[1] <- if (I0_at_steady_state > 0) N - round(I_star) - round(S_star) else N - I0 - S0
-
-  ##dt <- 0.01
 
   count <- seq(1, 10000, by=1)
   for (j in count)
@@ -79,7 +77,6 @@ themodel <- function(dt) {
 }
 
 displaythemodel <- function(results) {
-  warnings()
 
   sir_col <- c("#8c8cd9", "#cc0044", "#999966")
   par(mar = c(4.1, 5.1, 0.5, 0.5), las = 1)

@@ -47,13 +47,16 @@ draw with `n = I` and `p = sigma * dt`. Note, N = S + I + R.
 This is a basic example which shows you how to solve a common problem.
 The model is run once for 10,000 iterations with a time step of 0.01
 
-<div class="figure">
+    #> Warning in par(mar = c(4.1, 5.1, 0.5, 0.5), las = 1, new = TRUE): calling
+    #> par(new=TRUE) with no plot
 
-<img src="man/figures/README-unnamed-chunk-2-1.png" alt="SIR simulation run once, N= 10000, dt = 0.01" width="100%" />
+<div class="figure" style="text-align: center">
+
+<img src="man/figures/README-unnamed-chunk-2-1.png" alt="SIR simulation run once, N = 10,000 and dt = 0.01" width="100%" />
 
 <p class="caption">
 
-SIR simulation run once, N= 10000, dt = 0.01
+SIR simulation run once, N = 10,000 and dt = 0.01
 
 </p>
 
@@ -65,13 +68,13 @@ step of 0.01 using the same code.
     #> Warning in par(mar = c(4.1, 5.1, 0.5, 0.5), las = 1, new = TRUE): calling
     #> par(new=TRUE) with no plot
 
-<div class="figure">
+<div class="figure" style="text-align: center">
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" alt="SIR simulation run 10 times, N= 10000, dt = 0.01" width="100%" />
+<img src="man/figures/README-unnamed-chunk-3-1.png" alt="SIR simulation run 100 times, N = 10,000 and dt = 0.01" width="100%" />
 
 <p class="caption">
 
-SIR simulation run 10 times, N= 10000, dt = 0.01
+SIR simulation run 100 times, N = 10,000 and dt = 0.01
 
 </p>
 
@@ -80,6 +83,3 @@ SIR simulation run 10 times, N= 10000, dt = 0.01
 ## License
 
 MIT © Imperial College of Science, Technology and Medicine
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub\!
