@@ -83,8 +83,8 @@ displaythemodel <- function(results) {
 
   sir_col <- c("#8c8cd9", "#cc0044", "#999966")
   par(mar = c(4.1, 5.1, 0.5, 0.5), las = 1)
-  matplot(results$time[1:10000], cbind(results$S[1:10000], results$I[1:10000], results$R[1:10000]), type = "l", col = sir_col, lty = 1, xlab="time", pch=c(1,16,17))
-  legend(1, lwd = 1, col = sir_col, legend = c("S", "I", "R"))
+  matplot(results$time[1:10000], cbind(results$S[1:10000], results$I[1:10000], results$R[1:10000]), type = "l", col = sir_col, lty = 1, xlab="time", ylab="S, I, R")
+  legend(2, lwd = 1, col = sir_col, legend = c("S", "I", "R"))
 
 }
 
