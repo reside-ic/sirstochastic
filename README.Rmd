@@ -57,8 +57,8 @@ results <- sirstochastic::themodel(dt)
 
 sir_col <- c("#8c8cd9", "#cc0044", "#999966")
 par(mar = c(4.1, 5.1, 0.5, 0.5), las = 1, new=TRUE)
-matplot(results$time[1:10000], cbind(results$S[1:10000], results$I[1:10000], results$R[1:10000]), type = "l", col = sir_col, lty = 1, xlab="time", ylab="S, I, R", main = "SIR model, single run, N = 10,000, dt = 0.01")
- title("SIR model, single run, N = 10,000, dt = 0.01", line = -2)
+matplot(results$time[1:10000], cbind(results$S[1:10000], results$I[1:10000], results$R[1:10000]), type = "l", col = sir_col, lty = 1, xlab="time", ylab="S, I, R")
+title("SIR model, single run, N = 10,000, dt = 0.01", line = -2, adj = 0.2, col.main = "gray", font.main = 4)
 legend("topright", inset = 0.05, lwd = 1, col = sir_col, legend = c("S", "I", "R"))
 ```
 
@@ -76,7 +76,9 @@ for (j in count)
     sir_col <- c("#8c8cd9", "#cc0044", "#999966")
     par(mar = c(4.1, 5.1, 0.5, 0.5), las = 1, new=TRUE)
     matplot(results$time[1:10000], cbind(results$S[1:10000], results$I[1:10000], results$R[1:10000]), type = "l", col = sir_col, lty = 1, xlab="time", ylab="S, I, R")
-    title("SIR model, 100 runs, N = 10,000, dt = 0.01", line = -2)
+    if(j == 10){
+      title("SIR model, 100 runs, N = 10,000, dt = 0.01", line = -2, adj = 0.2, col.main = "gray", font.main = 4)
+    }
     legend("topright", inset = 0.05, lwd = 1, col = sir_col, legend = c("S", "I", "R"))
 }
 ```
