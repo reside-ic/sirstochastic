@@ -8,21 +8,27 @@
 #'
 #' @examples
 #' sirmodel(pars)
-#' initialisesir()
-#' infections(IJ, SJ)
-#' recoveries(IJ)
-#' births(RJ, n_deaths_S, n_deaths_I)
+#' initialisesir(pars)
+#' infections(pars, IJ, SJ)
+#' recoveries(pars, IJ)
+#' births(pars, RJ, n_deaths_S, n_deaths_I)
+#' update(pars, inf, rec, bir, SJ, IJ, RJ, j)
 #' displaythemodel(results)
-#  sirmodel <- function(pars) {
 sirmodel <- function(pars) {
   warnings()
+
+  # Take default parameters if pars is empty
+  if (length(pars) == 0 ){
+    pars <- get_parameters()
+  }
+
   NT <- pars$N + 1
   S <- rep(NA_integer_, NT)
   I <- rep(NA_integer_, NT)
   R <- rep(NA_integer_, NT)
 
   ## Initialise S, I, R
-  initsir <- initialisesir()
+  initsir <- initialisesir(pars)
 
   S[1] <- initsir$S
   I[1] <- initsir$I
@@ -31,33 +37,32 @@ sirmodel <- function(pars) {
   count <- seq(1, 10000, by=1)
   for (j in count)
   {
-    inf <- infections(I[j], S[j])
-    rec <- recoveries(I[j])
-    bir <- births(R[j], inf$n_deaths_S, rec$n_deaths_I)
+    # calculate information for infections, recoveries and births
+    inf <- infections(pars, I[j], S[j])
+    rec <- recoveries(pars, I[j])
+    bir <- births(pars, R[j], inf, rec)
 
     # update for next time step
     if (j == NT){
+      # break if we have reached the end
       break
     }
     else{
-      S[j+1] <- S[j] - inf$n_deaths_S - inf$n_infections_S + bir$n_births
-      I[j+1] <- I[j] + inf$n_infections_S - rec$n_recoveries_I - rec$n_deaths_I
-      R[j+1] <- R[j] + rec$n_recoveries_I - bir$n_deaths_R
-      newN <- S[j+1] + I[j+1] + R[j+1]
-      if(newN != pars$N){
-        thetime <- pars$dt * (j + 1)
-        stop(sprintf("newN is not equal to N for time = %f",
-                     thetime))
-      }
+      # Find next values of S, I and R
+      updated <- update(pars, inf, rec, bir, S[j], I[j], R[j], j)
     }
+
+    S[j + 1] <- updated$news
+    I[j + 1] <- updated$newi
+    R[j + 1] <- updated$newr
   }
 
   time <- seq(0, 100, by = pars$dt)
   list(S = S, I = I, R = R, time = time)
 }
 
-initialisesir <- function(){
-  pars <- get_parameters()
+initialisesir <- function(pars){
+
   ## Stochastic solution
   R0 <- pars$beta/( pars$nu + pars$mu )
   # SIR: new definition of number of infected people at endemic equilibrium state
@@ -65,9 +70,11 @@ initialisesir <- function(){
   # SIR: new definition of number of susceptible people at endemic equilibrium state
   S_star <- pars$N/R0
 
-  S0 <- (pars$N-pars$I0)*(1 - pars$prop_immune)  # initial susceptible people
+  # initial susceptible people
+  S0 <- (pars$N-pars$I0)*(1 - pars$prop_immune)
   R0 <- pars$N - pars$I0 - S0
 
+  # initialise S, I and R
   S <- if (pars$I0_at_steady_state > 0) round(S_star) else S0
   I <- if (pars$I0_at_steady_state > 0) round(I_star) else pars$I0
   R <- if (pars$I0_at_steady_state > 0) pars$N - round(I_star) - round(S_star) else pars$N - pars$I0 - S0
@@ -75,38 +82,111 @@ initialisesir <- function(){
   list(S = S, I = I, R = R)
 }
 
-infections <- function(IJ, SJ){
-
-  pars <- get_parameters()
+infections <- function(pars, IJ, SJ){
+  # SIR: two types of events for S, so competing hazards. A fraction of
+  # S events are deaths and the rest are infections.
   FOI <- pars$beta * IJ / pars$N
   fmu <- FOI + pars$mu
-  prob1 <- fmu *pars$dt
-  prob2 <- (pars$mu/fmu)
-  n_events_S <- rbinom(1, SJ, prob1) # SIR: two types of events for S, so competing hazards.
-  n_deaths_S <- rbinom(1, n_events_S, prob2) # SIR: a fraction of S events are deaths.
-  n_infections_S <- n_events_S - n_deaths_S	# SIR: ...the rest are infections.
+  fmudt <- fmu *pars$dt
+
+  if(fmudt > 1000){
+    prob1 <- 1.0 - exp(-1.0 * fmudt)
+    prob2 <- 1.0 - exp(-1.0 * pars$mu/fmu)
+  }
+  else{
+    prob1 <- fmudt
+    prob2 <- pars$mu/fmu
+  }
+
+  #print(prob1)
+  #print(prob2)
+  if(is.null(pars$n_events_S)){
+    n_events_S <- rbinom(1, SJ, prob1)
+  }else{
+    n_events_S = pars$n_events_S
+  }
+
+  if(is.null(pars$n_deaths_S)){
+    n_deaths_S <- rbinom(1, n_events_S, prob2)
+  }else{
+    n_deaths_S = pars$n_deaths_S
+  }
+
+  n_infections_S <- n_events_S - n_deaths_S
 
   list(n_deaths_S = n_deaths_S, n_infections_S = n_infections_S)
 }
 
-recoveries <- function(IJ){
-  pars <- get_parameters()
-  prob3 <- (pars$nu + pars$mu)* pars$dt
-  prob4 <- pars$mu/(pars$mu + pars$nu)
-  n_events_I <- rbinom(1, IJ, prob3) # SIR: two types of events for I, so competing hazards.
-  n_deaths_I <- rbinom(1, n_events_I, prob4) # SIR: a fraction of I events are deaths.
-  n_recoveries_I <- n_events_I - n_deaths_I # SIR: ...the rest are recoveries.
+recoveries <- function(pars, IJ){
+  # SIR: two types of events for I, so competing hazards and a fraction of
+  # I events are deaths and the rest are recoveries
+  coeff <- pars$nu + pars$mu
+  coeffdt <- coeff * pars$dt
+  if(coeffdt > 1000){
+    prob1 <- 1.0 - exp(-1.0 * coeffdt)
+    prob2 <- 1.0 - exp(-1.0 * pars$mu/coeff)
+  }
+  else{
+    prob1 <- coeffdt
+    prob2 <- pars$mu/coeff
+  }
+
+  #print(prob1)
+  #print(prob2)
+  if(is.null(pars$n_events_I)){
+    n_events_I <- rbinom(1, IJ, prob1)
+  }else{
+    n_events_I = pars$n_events_I
+  }
+
+  if(is.null(pars$n_deaths_I)){
+    n_deaths_I <- rbinom(1, n_events_I, prob2)
+  }else{
+    n_deaths_I = pars$n_deaths_I
+  }
+
+  n_recoveries_I <- n_events_I - n_deaths_I
 
   list(n_deaths_I = n_deaths_I, n_recoveries_I = n_recoveries_I)
 }
 
-births <- function(RJ, n_deaths_S, n_deaths_I){
-  pars <- get_parameters()
-  prob5 <- pars$mu*pars$dt
-  n_deaths_R <- rbinom(1, RJ, prob5)
-  n_births <- n_deaths_S + n_deaths_I + n_deaths_R
+births <- function(pars, RJ, inf, rec){
+
+  coeffdt <- pars$mu*pars$dt
+  if(coeffdt > 1000){
+    prob <- 1.0 - exp(-1.0 * coeffdt)
+  }
+  else{
+    prob <- coeffdt
+  }
+
+  #print(prob)
+
+  if(is.null(pars$n_deaths_R)){
+    n_deaths_R <- rbinom(1, RJ, prob)
+  }else{
+    n_deaths_R = pars$n_deaths_R
+  }
+
+  n_births <- inf$n_deaths_S + rec$n_deaths_I + n_deaths_R
 
   list(n_deaths_R = n_deaths_R, n_births = n_births)
+}
+
+update <- function(pars, inf, rec, bir, SJ, IJ, RJ, j){
+
+    news <- SJ - inf$n_deaths_S - inf$n_infections_S + bir$n_births
+    newi <- IJ + inf$n_infections_S - rec$n_recoveries_I - rec$n_deaths_I
+    newr <- RJ + rec$n_recoveries_I - bir$n_deaths_R
+    newN <- news + newi + newr
+
+    if(newN != pars$N){
+      thetime <- pars$dt * (j + 1)
+      stop(sprintf("newN is not equal to N for time = %f",
+                   thetime))
+    }
+
+    list(news = news, newi = newi, newr = newr)
 }
 
 displaythemodel <- function(results) {
