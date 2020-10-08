@@ -1,7 +1,7 @@
 
 #' Stochastic SIR model
 #'
-#' This takes 10000 iterations for time step dt = 0.01
+#' This takes N iterations for time step dt
 #'
 #' @return
 #' @export
@@ -34,7 +34,7 @@ sirmodel <- function(pars) {
   I[1] <- initsir$I
   R[1] <- initsir$R
 
-  count <- seq(1, 10000, by=1)
+  count <- seq(1, pars$N, by=1)
   for (j in count)
   {
     # calculate information for infections, recoveries and births
@@ -57,8 +57,9 @@ sirmodel <- function(pars) {
     R[j + 1] <- updated$newr
   }
 
-  time <- seq(0, 100, by = pars$dt)
-  list(S = S, I = I, R = R, time = time)
+  tlimit <- pars$N/pars$num
+  time <- seq(0, tlimit, by = pars$dt)
+  list(S = S, I = I, R = R, time = time, N = pars$N)
 }
 
 initialisesir <- function(pars){
@@ -89,7 +90,7 @@ infections <- function(pars, IJ, SJ){
   fmu <- FOI + pars$mu
   fmudt <- fmu *pars$dt
 
-  if(fmudt > 1000){
+  if(fmudt > pars$problim){
     prob1 <- 1.0 - exp(-1.0 * fmudt)
     prob2 <- 1.0 - exp(-1.0 * pars$mu/fmu)
   }
@@ -98,8 +99,6 @@ infections <- function(pars, IJ, SJ){
     prob2 <- pars$mu/fmu
   }
 
-  #print(prob1)
-  #print(prob2)
   if(is.null(pars$n_events_S)){
     n_events_S <- rbinom(1, SJ, prob1)
   }else{
@@ -122,7 +121,7 @@ recoveries <- function(pars, IJ){
   # I events are deaths and the rest are recoveries
   coeff <- pars$nu + pars$mu
   coeffdt <- coeff * pars$dt
-  if(coeffdt > 1000){
+  if(coeffdt > pars$problim){
     prob1 <- 1.0 - exp(-1.0 * coeffdt)
     prob2 <- 1.0 - exp(-1.0 * pars$mu/coeff)
   }
@@ -131,8 +130,6 @@ recoveries <- function(pars, IJ){
     prob2 <- pars$mu/coeff
   }
 
-  #print(prob1)
-  #print(prob2)
   if(is.null(pars$n_events_I)){
     n_events_I <- rbinom(1, IJ, prob1)
   }else{
@@ -153,7 +150,7 @@ recoveries <- function(pars, IJ){
 births <- function(pars, RJ, inf, rec){
 
   coeffdt <- pars$mu*pars$dt
-  if(coeffdt > 1000){
+  if(coeffdt > pars$problim){
     prob <- 1.0 - exp(-1.0 * coeffdt)
   }
   else{
@@ -189,11 +186,11 @@ update <- function(pars, inf, rec, bir, SJ, IJ, RJ, j){
     list(news = news, newi = newi, newr = newr)
 }
 
-displaythemodel <- function(results) {
+displaythemodel <- function(res) {
 
   sir_col <- c("#8c8cd9", "#cc0044", "#999966")
   par(mar = c(4.1, 5.1, 0.5, 0.5), las = 1)
-  check = matplot(results$time[1:10000], cbind(results$S[1:10000], results$I[1:10000], results$R[1:10000]), type = "l", col = sir_col, lty = 1, xlab="time", ylab="S, I, R")
+  check = matplot(res$time[1:res$N], cbind(res$S[1:res$N], res$I[1:res$N], res$R[1:res$N]), type = "l", col = sir_col, lty = 1, xlab="time", ylab="S, I, R")
   legend("topright", inset = 0.05, lwd = 1, col = sir_col, legend = c("S", "I", "R"))
   title("SIR model, single run, N = 10,000, dt = 0.01", line = -2, adj = 0.2, col.main = "gray", font.main = 4)
 
