@@ -59,7 +59,7 @@ sirmodel <- function(pars) {
 
   tlimit <- pars$N/pars$num
   time <- seq(0, tlimit, by = pars$dt)
-  list(S = S, I = I, R = R, time = time, N = pars$N)
+  list(S = S, I = I, R = R, time = time, countlim = pars$countlim, dt = pars$dt)
 }
 
 initialisesir <- function(pars){
@@ -90,27 +90,17 @@ infections <- function(pars, IJ, SJ){
   fmu <- FOI + pars$mu
   fmudt <- fmu *pars$dt
 
-  if(fmudt > pars$problim){
-    prob1 <- 1.0 - exp(-1.0 * fmudt)
-    prob2 <- 1.0 - exp(-1.0 * pars$mu/fmu)
-  }
-  else{
-    prob1 <- fmudt
-    prob2 <- pars$mu/fmu
-  }
+  prob1 <- 1.0 - exp(-1.0 * fmudt)
+  #prob2 <- 1.0 - exp(-1.0 * pars$mu/fmu)
+  prob2 <- 1.0 - exp(-1.0 * pars$mu/fmu)
 
-  if(is.null(pars$n_events_S)){
-    n_events_S <- rbinom(1, SJ, prob1)
-  }else{
-    n_events_S = pars$n_events_S
-  }
+  # print("n_events_S")
+  # print(prob1)
+  print("n_deaths_S")
+  print(prob2)
 
-  if(is.null(pars$n_deaths_S)){
-    n_deaths_S <- rbinom(1, n_events_S, prob2)
-  }else{
-    n_deaths_S = pars$n_deaths_S
-  }
-
+  n_events_S <- rbinom(1, SJ, prob1)
+  n_deaths_S <- rbinom(1, n_events_S, prob2)
   n_infections_S <- n_events_S - n_deaths_S
 
   list(n_deaths_S = n_deaths_S, n_infections_S = n_infections_S)
@@ -121,27 +111,15 @@ recoveries <- function(pars, IJ){
   # I events are deaths and the rest are recoveries
   coeff <- pars$nu + pars$mu
   coeffdt <- coeff * pars$dt
-  if(coeffdt > pars$problim){
-    prob1 <- 1.0 - exp(-1.0 * coeffdt)
-    prob2 <- 1.0 - exp(-1.0 * pars$mu/coeff)
-  }
-  else{
-    prob1 <- coeffdt
-    prob2 <- pars$mu/coeff
-  }
 
-  if(is.null(pars$n_events_I)){
-    n_events_I <- rbinom(1, IJ, prob1)
-  }else{
-    n_events_I = pars$n_events_I
-  }
-
-  if(is.null(pars$n_deaths_I)){
-    n_deaths_I <- rbinom(1, n_events_I, prob2)
-  }else{
-    n_deaths_I = pars$n_deaths_I
-  }
-
+  prob1 <- 1.0 - exp(-1.0 * coeffdt)
+  prob2 <- 1.0 - exp(-1.0 * pars$mu/coeff)
+  # print("n_events_I")
+  # print(prob1)
+  # print("n_deaths_I")
+  # print(prob2)
+  n_events_I <- rbinom(1, IJ, prob1)
+  n_deaths_I <- rbinom(1, n_events_I, prob2)
   n_recoveries_I <- n_events_I - n_deaths_I
 
   list(n_deaths_I = n_deaths_I, n_recoveries_I = n_recoveries_I)
@@ -150,21 +128,11 @@ recoveries <- function(pars, IJ){
 births <- function(pars, RJ, inf, rec){
 
   coeffdt <- pars$mu*pars$dt
-  if(coeffdt > pars$problim){
-    prob <- 1.0 - exp(-1.0 * coeffdt)
-  }
-  else{
-    prob <- coeffdt
-  }
+  prob <- 1.0 - exp(-1.0 * coeffdt)
+  # print("n_deaths_R")
+  # print(prob)
 
-  #print(prob)
-
-  if(is.null(pars$n_deaths_R)){
-    n_deaths_R <- rbinom(1, RJ, prob)
-  }else{
-    n_deaths_R = pars$n_deaths_R
-  }
-
+  n_deaths_R <- rbinom(1, RJ, prob)
   n_births <- inf$n_deaths_S + rec$n_deaths_I + n_deaths_R
 
   list(n_deaths_R = n_deaths_R, n_births = n_births)
@@ -190,9 +158,13 @@ displaythemodel <- function(res) {
 
   sir_col <- c("#8c8cd9", "#cc0044", "#999966")
   par(mar = c(4.1, 5.1, 0.5, 0.5), las = 1)
-  check = matplot(res$time[1:res$N], cbind(res$S[1:res$N], res$I[1:res$N], res$R[1:res$N]), type = "l", col = sir_col, lty = 1, xlab="time", ylab="S, I, R")
+  check = matplot(res$time[1:res$countlim], cbind(res$S[1:res$countlim], res$I[1:res$countlim], res$R[1:res$countlim]), type = "l", col = sir_col, lty = 1, xlab="time", ylab="S, I, R")
   legend("topright", inset = 0.05, lwd = 1, col = sir_col, legend = c("S", "I", "R"))
-  title("SIR model, single run, N = 10,000, dt = 0.01", line = -2, adj = 0.2, col.main = "gray", font.main = 4)
+  a <- paste("N = ", res$N)
+  b <- paste("dt = ", res$dt)
+  c <- paste(a, b)
+  d <- paste("SIR model,",  c )
+  title(d, line = -2, adj = 0.2, col.main = "gray", font.main = 4)
 
   list(check)
 }

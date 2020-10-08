@@ -9,14 +9,7 @@ test_that("test correct default parameters returned from get_parameters()", {
   expect_identical(pars$N, 10000)
   expect_identical(pars$I0, 5)
   expect_identical(pars$dt, 0.01)
-  expect_identical(pars$n_events_S, NULL)
-  expect_identical(pars$n_deaths_S, NULL)
-  expect_identical(pars$n_infections_S, NULL)
-  expect_identical(pars$n_events_I, NULL)
-  expect_identical(pars$n_deaths_I, NULL)
-  expect_identical(pars$n_recoveries_I, NULL)
-  expect_identical(pars$n_births_R, NULL)
-  expect_identical(pars$n_deaths_R, NULL)
+
 })
 
 test_that("test that func sirmodel when given no data runs with default data", {
@@ -27,10 +20,20 @@ test_that("test that func sirmodel when given no data runs with default data", {
 
 })
 
-test_that("test that a single SIR model can be run and give a valid plot", {
+test_that("test that a single SIR model can be run and give a valid plot with default data, N = 10000", {
 
   pars <- get_parameters()
   res <- sirmodel(pars)
+  check <- displaythemodel(res)
+  expect_equal(check$check, NULL)
+
+})
+
+test_that("test that a single SIR model can be run and give a valid plot for N = 1000", {
+
+  pars <- get_parameters()
+  res <- sirmodel(pars)
+  pars[["N"]] <- 1000
   check <- displaythemodel(res)
   expect_equal(check$check, NULL)
 
@@ -61,11 +64,11 @@ test_that("test for non-valid numbers and number of data points", {
 
   pars <- get_parameters()
   res <- sirmodel(pars)
-
-  expect_equal(length(res$time), 10001)
-  expect_equal(length(res$S), 10001)
-  expect_equal(length(res$I), 10001)
-  expect_equal(length(res$R), 10001)
+  NT <- pars$N + 1
+  expect_equal(length(res$time), NT)
+  expect_equal(length(res$S), NT)
+  expect_equal(length(res$I), NT)
+  expect_equal(length(res$R), NT)
   expect_false(any(is.na(res)))
 
 })
@@ -75,7 +78,8 @@ test_that("there are no infections when beta is 0", {
   pars <- get_parameters()
   pars[["beta"]] <- 0
   res <- sirmodel(pars)
-  expect_true(all(res$I[1:10001] <= 5))
+  NT <- pars$N + 1
+  expect_true(all(res$I[1:NT] <= 5))
 
 })
 
@@ -84,7 +88,8 @@ test_that("test that everyone is infected when beta is very high", {
   pars <- get_parameters()
   pars[["beta"]] <- 1e100
   res <- sirmodel(pars)
-  expect_true(all(res$S[2:10001] == 0))
+  NT <- pars$N + 1
+  expect_true(all(res$S[2:NT] == 0))
 
 })
 
@@ -93,18 +98,7 @@ test_that("test that no one is infected if I is 0 at t = 0", {
   pars <- get_parameters()
   pars[["I0"]] <- 0
   res <- sirmodel(pars)
-  expect_true(all(res$I[1:10001] == 0))
-
-})
-
-test_that("test if there are no deaths", {
-
-  pars <- get_parameters()
-  pars[["n_deaths_S"]] <- 0
-  pars[["n_deaths_I"]] <- 0
-  pars[["n_deaths_R"]] <- 0
-  res <- sirmodel(pars)
-  check <- displaythemodel(res)
-  expect_equal(check$check, NULL)
+  NT <- pars$N + 1
+  expect_true(all(res$I[1:NT] == 0))
 
 })
