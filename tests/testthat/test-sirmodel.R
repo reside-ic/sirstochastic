@@ -12,10 +12,10 @@ test_that("test correct default parameters returned from get_parameters()", {
   expect_identical(pars$n_events_S, NULL)
   expect_identical(pars$n_deaths_S, NULL)
   expect_identical(pars$n_infections_S, NULL)
-  expect_identical(pars$n_events_S, NULL)
-  expect_identical(pars$n_deaths_S, NULL)
-  expect_identical(pars$n_recoveries_S, NULL)
-  expect_identical(pars$n_deaths_R, NULL)
+  expect_identical(pars$n_events_I, NULL)
+  expect_identical(pars$n_deaths_I, NULL)
+  expect_identical(pars$n_recoveries_I, NULL)
+  expect_identical(pars$n_births_R, NULL)
   expect_identical(pars$n_deaths_R, NULL)
 })
 
@@ -104,5 +104,7 @@ test_that("test if there are no deaths", {
   pars[["n_deaths_I"]] <- 0
   pars[["n_deaths_R"]] <- 0
   res <- sirmodel(pars)
+  check <- displaythemodel(res)
+  expect_equal(check$check, NULL)
 
 })
