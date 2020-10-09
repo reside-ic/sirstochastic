@@ -70,7 +70,7 @@ options(warn = - 1)
 pars <- sirstochastic::get_parameters()
 end_time <- 100
 
-df <- lapply(seq_len(10), function(simulation) sirstochastic::sirmodel(end_time, pars))
+df <- lapply(seq_len(100), function(simulation) sirstochastic::sirmodel(end_time, pars))
 
 sirstochastic:::displaythemodel(df) 
 
