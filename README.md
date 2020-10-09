@@ -17,6 +17,7 @@ You can install the released version of sirstochastic from
 
 ``` r
 install.packages("sirstochastic")
+install.packages("ggplot2")
 ```
 
 And the development version from [GitHub](https://github.com/) with:
@@ -45,12 +46,12 @@ draw with `n = I` and `p = sigma * dt`. Note, N = S + I + R.
 ## Example
 
 This is a basic example which shows you how to solve a common problem.
-The model is run once for 10,000 iterations with a time step of 0.01
+The model is run once for 10,000 iterations with a time step of 0.01.
 
 <img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
-This time the model is run a hundred times for 10,000 iterations with a
-time step of 0.01 using the same code.
+This time the model is run a 100 times for 10,000 iterations with a time
+step of 0.01 using the same code.
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 

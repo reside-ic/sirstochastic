@@ -26,6 +26,7 @@ You can install the released version of sirstochastic from [CRAN](https://CRAN.R
 
 ``` r
 install.packages("sirstochastic")
+install.packages("ggplot2")
 ```
 
 And the development version from [GitHub](https://github.com/) with:
@@ -47,7 +48,7 @@ and these are converted to the discrete stochastic model by imagining that in a 
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem. The model is run once for 10,000 iterations with a time step of 0.01
+This is a basic example which shows you how to solve a common problem. The model is run once for 10,000 iterations with a time step of 0.01.
 
 ```{r echo=FALSE}
 
@@ -61,7 +62,7 @@ sirstochastic:::displaythemodel(df)
 
 ```
 
-This time the model is run a hundred times for 10,000 iterations with a time step of 0.01 using the same code.
+This time the model is run a 100 times for 10,000 iterations with a time step of 0.01 using the same code.
 
 ```{r echo=FALSE}
 options(warn = - 1) 
@@ -69,7 +70,7 @@ options(warn = - 1)
 pars <- sirstochastic::get_parameters()
 end_time <- 100
 
-df <- lapply(seq_len(100), function(simulation) sirstochastic::sirmodel(end_time, pars))
+df <- lapply(seq_len(10), function(simulation) sirstochastic::sirmodel(end_time, pars))
 
 sirstochastic:::displaythemodel(df) 
 

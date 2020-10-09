@@ -160,8 +160,25 @@ displaythemodel <- function(df) {
  # Convert to long format
   df <- tidyr::pivot_longer(tibble::as_tibble(df), c("S", "I", "R"))
 
+  subtitle <- "" # <- paste((lengths(df)/3)-1, "data points")
+  runs <- paste("runs ", (lengths(df)/3)-1)
+  caption <- "" # <- paste("Simulation for", runs)
+
   ggplot2::ggplot(df, ggplot2::aes(x=time, y=value, group=interaction(group, name), colour=name ) ) +
-    ggplot2::geom_line(size=1)
+    ggplot2::geom_line(size=1) +
+    ggplot2::theme_bw() +
+    ggplot2::labs(title = "SIR against time", subtitle = subtitle, caption = caption, color="Category") +
+    ggplot2::theme(
+      legend.justification = c("right", "top"),
+      legend.box = c("horizontal", "vertical")
+    ) +
+    ggplot2::scale_colour_manual(values=c("blue", "red", "purple"))
+
+  # ggsave(plot = zp1, "Standard ggsave.png", h = 9/3, w = 16/3)
+  # ggsave(plot = zp1, "Cairo ggsave.png", h = 9/3, w = 16/3, type = "cairo-png")
+
 
 }
+
+
 
