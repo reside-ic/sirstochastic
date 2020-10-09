@@ -13,16 +13,16 @@
 #' recoveries(pars, IJ)
 #' births(pars, RJ, n_deaths_S, n_deaths_I)
 #' update(pars, inf, rec, bir, SJ, IJ, RJ, j)
-#' displaythemodel(results)
-sirmodel <- function(pars) {
+#' displaythemodel(df2)
+sirmodel <- function(end_time, pars) {
   warnings()
 
-  # Take default parameters if pars is empty
-  if (length(pars) == 0 ){
+  if(length(pars) == 0){
     pars <- get_parameters()
   }
 
-  NT <- pars$N + 1
+  time <- seq(0, end_time, by = pars$dt)
+  NT <- length(time)
   S <- rep(NA_integer_, NT)
   I <- rep(NA_integer_, NT)
   R <- rep(NA_integer_, NT)
@@ -34,36 +34,37 @@ sirmodel <- function(pars) {
   I[1] <- initsir$I
   R[1] <- initsir$R
 
-  count <- seq(1, pars$N, by=1)
-  for (j in count)
+  snew <- 0
+  inew <- 0
+  rnew <- 0
+
+  for (j in seq_along(time))
   {
+    if( j > 1){
+      S[j] <- news
+      I[j] <- newi
+      R[j] <- newr
+    }
+
     # calculate information for infections, recoveries and births
     inf <- infections(pars, I[j], S[j])
     rec <- recoveries(pars, I[j])
     bir <- births(pars, R[j], inf, rec)
 
     # update for next time step
-    if (j == NT){
-      # break if we have reached the end
-      break
-    }
-    else{
-      # Find next values of S, I and R
-      updated <- update(pars, inf, rec, bir, S[j], I[j], R[j], j)
-    }
+    # Find next values of S, I and R
+    updated <- update(pars, inf, rec, bir, S[j], I[j], R[j])
 
-    S[j + 1] <- updated$news
-    I[j + 1] <- updated$newi
-    R[j + 1] <- updated$newr
+    news <- updated$news
+    newi <- updated$newi
+    newr <- updated$newr
   }
 
-  tlimit <- pars$N/pars$num
-  time <- seq(0, tlimit, by = pars$dt)
-  list(S = S, I = I, R = R, time = time, countlim = pars$countlim, dt = pars$dt)
+  data.frame(S = S, I = I, R = R, time = time, stringsAsFactors = FALSE)
+  #list(S = S, I = I, R = R, time = time)
 }
 
 initialisesir <- function(pars){
-
   ## Stochastic solution
   R0 <- pars$beta/( pars$nu + pars$mu )
   # SIR: new definition of number of infected people at endemic equilibrium state
@@ -76,9 +77,9 @@ initialisesir <- function(pars){
   R0 <- pars$N - pars$I0 - S0
 
   # initialise S, I and R
-  S <- if (pars$I0_at_steady_state > 0) round(S_star) else S0
-  I <- if (pars$I0_at_steady_state > 0) round(I_star) else pars$I0
-  R <- if (pars$I0_at_steady_state > 0) pars$N - round(I_star) - round(S_star) else pars$N - pars$I0 - S0
+  S <- if (pars$I0_at_steady_state) round(S_star) else S0
+  I <- if (pars$I0_at_steady_state) round(I_star) else pars$I0
+  R <- if (pars$I0_at_steady_state) pars$N - round(I_star) - round(S_star) else pars$N - pars$I0 - S0
 
   list(S = S, I = I, R = R)
 }
@@ -91,17 +92,18 @@ infections <- function(pars, IJ, SJ){
   fmudt <- fmu *pars$dt
 
   prob1 <- 1.0 - exp(-1.0 * fmudt)
-  #prob2 <- 1.0 - exp(-1.0 * pars$mu/fmu)
-  prob2 <- 1.0 - exp(-1.0 * pars$mu/fmu)
-
-  # print("n_events_S")
-  # print(prob1)
-  print("n_deaths_S")
-  print(prob2)
+  prob2 <- pars$mu/fmu
 
   n_events_S <- rbinom(1, SJ, prob1)
-  n_deaths_S <- rbinom(1, n_events_S, prob2)
-  n_infections_S <- n_events_S - n_deaths_S
+  if(n_events_S >0){
+    n_deaths_S <- rbinom(1, n_events_S, prob2)
+    n_infections_S <- n_events_S - n_deaths_S
+  }
+  else
+  {
+    n_deaths_S <- 0
+    n_infections_S <- 0
+  }
 
   list(n_deaths_S = n_deaths_S, n_infections_S = n_infections_S)
 }
@@ -114,10 +116,7 @@ recoveries <- function(pars, IJ){
 
   prob1 <- 1.0 - exp(-1.0 * coeffdt)
   prob2 <- 1.0 - exp(-1.0 * pars$mu/coeff)
-  # print("n_events_I")
-  # print(prob1)
-  # print("n_deaths_I")
-  # print(prob2)
+
   n_events_I <- rbinom(1, IJ, prob1)
   n_deaths_I <- rbinom(1, n_events_I, prob2)
   n_recoveries_I <- n_events_I - n_deaths_I
@@ -129,8 +128,6 @@ births <- function(pars, RJ, inf, rec){
 
   coeffdt <- pars$mu*pars$dt
   prob <- 1.0 - exp(-1.0 * coeffdt)
-  # print("n_deaths_R")
-  # print(prob)
 
   n_deaths_R <- rbinom(1, RJ, prob)
   n_births <- inf$n_deaths_S + rec$n_deaths_I + n_deaths_R
@@ -138,34 +135,33 @@ births <- function(pars, RJ, inf, rec){
   list(n_deaths_R = n_deaths_R, n_births = n_births)
 }
 
-update <- function(pars, inf, rec, bir, SJ, IJ, RJ, j){
+update <- function(pars, inf, rec, bir, SJ, IJ, RJ){
 
     news <- SJ - inf$n_deaths_S - inf$n_infections_S + bir$n_births
     newi <- IJ + inf$n_infections_S - rec$n_recoveries_I - rec$n_deaths_I
     newr <- RJ + rec$n_recoveries_I - bir$n_deaths_R
     newN <- news + newi + newr
 
-    if(newN != pars$N){
-      thetime <- pars$dt * (j + 1)
-      stop(sprintf("newN is not equal to N for time = %f",
-                   thetime))
-    }
-
     list(news = news, newi = newi, newr = newr)
 }
 
-displaythemodel <- function(res) {
+displaythemodel <- function(df) {
 
-  sir_col <- c("#8c8cd9", "#cc0044", "#999966")
-  par(mar = c(4.1, 5.1, 0.5, 0.5), las = 1)
-  check = matplot(res$time[1:res$countlim], cbind(res$S[1:res$countlim], res$I[1:res$countlim], res$R[1:res$countlim]), type = "l", col = sir_col, lty = 1, xlab="time", ylab="S, I, R")
-  legend("topright", inset = 0.05, lwd = 1, col = sir_col, legend = c("S", "I", "R"))
-  a <- paste("N = ", res$N)
-  b <- paste("dt = ", res$dt)
-  c <- paste(a, b)
-  d <- paste("SIR model,",  c )
-  title(d, line = -2, adj = 0.2, col.main = "gray", font.main = 4)
+  # This function displays data in a list. df must be in the form of a list.
 
-  list(check)
+  # Check if df is a dataframe. If yes then turn it into a list
+  if(is.data.frame(df)){
+    df <- list(df)
+  }
+
+  # Create group id for data
+  df <- dplyr::bind_rows(df, .id = "group")
+
+ # Convert to long format
+  df <- tidyr::pivot_longer(tibble::as_tibble(df), c("S", "I", "R"))
+
+  ggplot2::ggplot(df, ggplot2::aes(x=time, y=value, group=interaction(group, name), colour=name ) ) +
+    ggplot2::geom_line(size=1)
+
 }
 
