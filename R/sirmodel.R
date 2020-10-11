@@ -60,8 +60,7 @@ sirmodel <- function(end_time, pars) {
     newr <- updated$newr
   }
 
-  data.frame(S = S, I = I, R = R, time = time, stringsAsFactors = FALSE)
-  #list(S = S, I = I, R = R, time = time)
+  data.frame(S = S, I = I, R = R, time = time, plotsave = pars$plotsave, stringsAsFactors = FALSE)
 }
 
 initialisesir <- function(pars){
@@ -150,33 +149,47 @@ displaythemodel <- function(df) {
   # This function displays data in a list. df must be in the form of a list.
 
   # Check if df is a dataframe. If yes then turn it into a list
+  numruns <- 0
+  datapoints <- 0
+  subtitle <- ""
+
   if(is.data.frame(df)){
+    datapoints <- paste(nrow(df) - 1)
+    numruns <- 1
     df <- list(df)
+    subtitle <- paste('Simulation for', numruns, 'run and', datapoints, 'data points')
+  }
+  else{
+    numruns <- length(df)
+    datapoints <- length(df[[1]][[1]])-1
+    subtitle <- paste('Simulation for', numruns, 'runs,', datapoints, 'data points per run')
   }
 
   # Create group id for data
   df <- dplyr::bind_rows(df, .id = "group")
 
- # Convert to long format
+  # Convert to long format
   df <- tidyr::pivot_longer(tibble::as_tibble(df), c("S", "I", "R"))
-
-  subtitle <- "" # <- paste((lengths(df)/3)-1, "data points")
-  runs <- paste("runs ", (lengths(df)/3)-1)
-  caption <- "" # <- paste("Simulation for", runs)
 
   ggplot2::ggplot(df, ggplot2::aes(x=time, y=value, group=interaction(group, name), colour=name ) ) +
     ggplot2::geom_line(size=1) +
     ggplot2::theme_bw() +
-    ggplot2::labs(title = "SIR against time", subtitle = subtitle, caption = caption, color="Category") +
+    ggplot2::labs(title = "SIR against time", subtitle = subtitle, color="Category") +
+    ggplot2::labs(y ="S, I, & R") +
     ggplot2::theme(
       legend.justification = c("right", "top"),
       legend.box = c("horizontal", "vertical")
     ) +
-    ggplot2::scale_colour_manual(values=c("blue", "red", "purple"))
+    ggplot2::scale_colour_manual(values=c("blue", "red", "purple")) +
+    ggplot2::theme( plot.title = ggplot2::element_text(color="black", size=14,
+      face="bold.italic"), axis.title.x = ggplot2::element_text(color="blue", size=14, face="bold"),
+      axis.title.y = ggplot2::element_text(color="blue", size=14, face="bold.italic"))
 
-  # ggsave(plot = zp1, "Standard ggsave.png", h = 9/3, w = 16/3)
-  # ggsave(plot = zp1, "Cairo ggsave.png", h = 9/3, w = 16/3, type = "cairo-png")
-
+  # if(df$plotsave){
+  #   savedfilename <- paste(numruns, 'run(s)', datapoints, 'pts.png')
+  #   ggplot2::ggsave(
+  #     savedfilename, h = 9/3, w = 16/3, type = "cairo-png")
+  # }
 
 }
 
