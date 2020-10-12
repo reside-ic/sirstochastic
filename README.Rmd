@@ -51,7 +51,7 @@ and these are converted to the discrete stochastic model by imagining that in a 
 This is a basic example which shows you how to solve a common problem. The model is run once for 10,000 iterations with a time step of 0.01.
 
 ```{r 1run10000points, echo=FALSE}
-
+options(warn = - 1) 
 pars <- sirstochastic::get_parameters()
 end_time <- 100
 
@@ -63,7 +63,7 @@ sirstochastic:::displaythemodel(df)
 This time the model is run a 100 times for 10,000 iterations with a time step of 0.01 using the same code.
 
 ```{r 100runs10000points, echo=FALSE}
-
+options(warn = - 1) 
 pars <- sirstochastic::get_parameters()
 end_time <- 100
 
