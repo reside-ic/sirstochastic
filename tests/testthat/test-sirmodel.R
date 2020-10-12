@@ -12,8 +12,7 @@ test_that("test correct default parameters returned from get_parameters()", {
 })
 
 test_that("can set parameters", {
-  p <- get_parameters()
-  p[["beta"]] = 0
+  p <- get_parameters(list(beta = 0))
   expect_equal(p$beta, 0)
 })
 
@@ -23,6 +22,35 @@ test_that("test that func sirmodel when given no data runs with default data", {
   end_time <- 100
   res <- sirmodel(end_time, pars)
   expect_true(!is.null(res))
+
+})
+
+test_that("that when no parameters are set parameter list defaults to sir_model_parameters_defaults", {
+  end_time <- 100
+  pars <- get_parameters(NULL)
+  expect_equal(pars, sir_model_parameters_defaults())
+
+})
+
+test_that("test overrides works for parameter list", {
+
+  dfs <- run_with_repetitions(
+    100,
+    1
+  )
+
+  expect_true(is.data.frame(dfs) == TRUE)
+
+})
+
+test_that("test run_simulation_with_repetitions works with multiple runs", {
+
+  dfs <- run_with_repetitions(
+    100,
+    10
+  )
+
+  expect_true(is.data.frame(dfs) == TRUE)
 
 })
 

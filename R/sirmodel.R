@@ -1,25 +1,16 @@
-
 #' Stochastic SIR model
 #'
 #' This takes N iterations for time step dt
-#'
-#' @return
+#' @param pars list of parameters
+#' @param end_time end time of data
+#' @return dataframe
 #' @export
 #'
 #' @examples
-#' sirmodel(pars)
-#' initialisesir(pars)
-#' infections(pars, IJ, SJ)
-#' recoveries(pars, IJ)
-#' births(pars, RJ, n_deaths_S, n_deaths_I)
-#' update(pars, inf, rec, bir, SJ, IJ, RJ, j)
-#' displaythemodel(df2)
-sirmodel <- function(end_time, pars) {
-  warnings()
+#' sirmodel(100, list())
+sirmodel <- function(end_time, pars = NULL) {
 
-  if(length(pars) == 0){
-    pars <- get_parameters()
-  }
+  pars <- get_parameters(pars)
 
   time <- seq(0, end_time, by = pars$dt)
   NT <- length(time)
@@ -82,7 +73,7 @@ initialisesir <- function(pars){
 
   list(S = S, I = I, R = R)
 }
-
+#' @importFrom stats rbinom
 infections <- function(pars, IJ, SJ){
   # SIR: two types of events for S, so competing hazards. A fraction of
   # S events are deaths and the rest are infections.
@@ -144,6 +135,40 @@ update <- function(pars, inf, rec, bir, SJ, IJ, RJ){
     list(news = news, newi = newi, newr = newr)
 }
 
+#' @title Run the simulation with repetitions
+#'
+#' @param end_time end time for run
+#' @param repetitions n times to run the simulation
+#' @param overrides a named list of parameters to use instead of defaults
+#' @param parallel execute runs in parallel, TRUE or FALSE
+#' @export
+run_with_repetitions <- function(
+  end_time,
+  repetitions,
+  overrides = list(),
+  parallel = FALSE
+) {
+  if (parallel) {
+    fapply <- parallel::mclapply
+  } else {
+    fapply <- lapply
+  }
+  dfs <- fapply(
+    seq(repetitions),
+    function(repetition) {
+      df <- sirmodel(end_time, overrides)
+      df$repetition <- repetition
+      df
+    }
+  )
+  do.call("rbind", dfs)
+}
+
+#' Title
+#'
+#' @param df data frame containing output
+#'
+#' @export
 displaythemodel <- function(df) {
 
   # This function displays data in a list. df must be in the form of a list.
@@ -171,7 +196,7 @@ displaythemodel <- function(df) {
   # Convert to long format
   df <- tidyr::pivot_longer(tibble::as_tibble(df), c("S", "I", "R"))
 
-  ggplot2::ggplot(df, ggplot2::aes(x=time, y=value, group=interaction(group, name), colour=name ) ) +
+  ggplot2::ggplot(df, ggplot2::aes(x=df$time, y=df$value, group=interaction(df$group, df$name), colour=df$name ) ) +
     ggplot2::geom_line(size=1) +
     ggplot2::theme_bw() +
     ggplot2::labs(title = "SIR against time", subtitle = subtitle, color="Category") +
