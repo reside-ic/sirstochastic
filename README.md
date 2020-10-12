@@ -48,12 +48,26 @@ draw with `n = I` and `p = sigma * dt`. Note, N = S + I + R.
 This is a basic example which shows you how to solve a common problem.
 The model is run once for 10,000 iterations with a time step of 0.01.
 
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
+    #> Warning: Use of `df$time` is discouraged. Use `time` instead.
+    #> Warning: Use of `df$value` is discouraged. Use `value` instead.
+    #> Warning: Use of `df$group` is discouraged. Use `group` instead.
+    #> Warning: Use of `df$name` is discouraged. Use `name` instead.
+    
+    #> Warning: Use of `df$name` is discouraged. Use `name` instead.
+
+<img src="man/figures/README-1run10000points-1.png" width="100%" />
 
 This time the model is run a 100 times for 10,000 iterations with a time
 step of 0.01 using the same code.
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+    #> Warning: Use of `df$time` is discouraged. Use `time` instead.
+    #> Warning: Use of `df$value` is discouraged. Use `value` instead.
+    #> Warning: Use of `df$group` is discouraged. Use `group` instead.
+    #> Warning: Use of `df$name` is discouraged. Use `name` instead.
+    
+    #> Warning: Use of `df$name` is discouraged. Use `name` instead.
+
+<img src="man/figures/README-100runs10000points-1.png" width="100%" />
 
 ## License
 
