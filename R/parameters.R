@@ -10,7 +10,7 @@
 #' @param I0 initial number of infected people
 #' @param dt time step
 #' @param I0_at_steady_state boolean value
-#' @param plotsave if plotted file is to be saved
+#' @param plotsave TRUE if plotted data is to be saved to file
 #'
 #' @return
 #' @export
@@ -32,7 +32,7 @@ get_parameters <- function(overrides = list()) {
     num = 100,
     I0 = 5,
     dt = 0.01,
-    plotsave = FALSE)
+    plotsave = TRUE)
 
   if(parameters$beta < 0){
     stop("'beta' must be positive")

@@ -185,11 +185,11 @@ displaythemodel <- function(df) {
       face="bold.italic"), axis.title.x = ggplot2::element_text(color="blue", size=14, face="bold"),
       axis.title.y = ggplot2::element_text(color="blue", size=14, face="bold.italic"))
 
-  # if(df$plotsave){
-  #   savedfilename <- paste(numruns, 'run(s)', datapoints, 'pts.png')
-  #   ggplot2::ggsave(
-  #     savedfilename, h = 9/3, w = 16/3, type = "cairo-png")
-  # }
+  if(df$plotsave[[1]]){
+    savedfilename <- paste(numruns, 'run(s)', datapoints, 'pts.png')
+    ggplot2::ggsave(
+      savedfilename, h = 9/3, w = 16/3, type = "cairo-png")
+  }
 
 }
 
