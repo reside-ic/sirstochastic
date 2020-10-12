@@ -36,7 +36,8 @@ test_that("test overrides works for parameter list", {
 
   dfs <- run_with_repetitions(
     100,
-    1
+    1,
+    get_parameters()
   )
 
   expect_true(is.data.frame(dfs) == TRUE)
@@ -47,7 +48,8 @@ test_that("test run_simulation_with_repetitions works with multiple runs", {
 
   dfs <- run_with_repetitions(
     100,
-    10
+    10,
+    get_parameters()
   )
 
   expect_true(is.data.frame(dfs) == TRUE)

@@ -8,6 +8,7 @@
 #'
 #' @examples
 #' sirmodel(100, list())
+#' run_with_repetitions(100, 1, list(), FALSE)
 sirmodel <- function(end_time, pars = NULL) {
 
   pars <- get_parameters(pars)
@@ -139,13 +140,14 @@ update <- function(pars, inf, rec, bir, SJ, IJ, RJ){
 #'
 #' @param end_time end time for run
 #' @param repetitions n times to run the simulation
-#' @param overrides a named list of parameters to use instead of defaults
+#' @param pars parameter list
 #' @param parallel execute runs in parallel, TRUE or FALSE
+#' @return dataframe
 #' @export
 run_with_repetitions <- function(
   end_time,
   repetitions,
-  overrides = list(),
+  pars,
   parallel = FALSE
 ) {
   if (parallel) {
@@ -156,19 +158,17 @@ run_with_repetitions <- function(
   dfs <- fapply(
     seq(repetitions),
     function(repetition) {
-      df <- sirmodel(end_time, overrides)
+      df <- sirmodel(end_time, pars)
       df$repetition <- repetition
       df
     }
   )
+
+  # df <- lapply(seq_len(repetitions), function(simulation) sirstochastic::sirmodel(end_time, pars))
+
   do.call("rbind", dfs)
 }
 
-#' Title
-#'
-#' @param df data frame containing output
-#'
-#' @export
 displaythemodel <- function(df) {
 
   # This function displays data in a list. df must be in the form of a list.
@@ -200,7 +200,7 @@ displaythemodel <- function(df) {
     ggplot2::geom_line(size=1) +
     ggplot2::theme_bw() +
     ggplot2::labs(title = "SIR against time", subtitle = subtitle, color="Category") +
-    ggplot2::labs(y ="S, I, & R") +
+    ggplot2::labs(y ="S, I, & R", x="time") +
     ggplot2::theme(
       legend.justification = c("right", "top"),
       legend.box = c("horizontal", "vertical")
@@ -210,11 +210,12 @@ displaythemodel <- function(df) {
       face="bold.italic"), axis.title.x = ggplot2::element_text(color="blue", size=14, face="bold"),
       axis.title.y = ggplot2::element_text(color="blue", size=14, face="bold.italic"))
 
-  if(df$plotsave[[1]]){
-    savedfilename <- paste(numruns, 'run(s)', datapoints, 'pts.png')
-    ggplot2::ggsave(
-      savedfilename, h = 9/3, w = 16/3, type = "cairo-png")
-  }
+  # this is FALSE even when set TRUE at the moment - needs sorting
+  # if(df$plotsave[[1]]){
+  #   savedfilename <- paste(numruns, 'run(s)', datapoints, 'pts.png')
+  #   ggplot2::ggsave(
+  #     savedfilename, h = 9/3, w = 16/3, type = "cairo-png")
+  # }
 
 }
 
