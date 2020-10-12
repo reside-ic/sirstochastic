@@ -20,7 +20,6 @@ Parameters defined below
 \item \code{I0} initial number of infected people
 \item \code{dt} time step
 \item \code{I0_at_steady_state} boolean value
-\item \code{plotsave} TRUE if plotted data is to be saved to file
 }}
 }
 \value{

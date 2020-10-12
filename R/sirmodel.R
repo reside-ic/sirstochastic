@@ -52,7 +52,7 @@ sirmodel <- function(end_time, pars = NULL) {
     newr <- updated$newr
   }
 
-  data.frame(S = S, I = I, R = R, time = time, plotsave = pars$plotsave, stringsAsFactors = FALSE)
+  data.frame(S = S, I = I, R = R, time = time, stringsAsFactors = FALSE)
 }
 
 initialisesir <- function(pars){
@@ -67,10 +67,22 @@ initialisesir <- function(pars){
   S0 <- (pars$N-pars$I0)*(1 - pars$prop_immune)
   R0 <- pars$N - pars$I0 - S0
 
+  S <- 0
+  I <- 0
+  R <- 0
+
   # initialise S, I and R
-  S <- if (pars$I0_at_steady_state) round(S_star) else S0
-  I <- if (pars$I0_at_steady_state) round(I_star) else pars$I0
-  R <- if (pars$I0_at_steady_state) pars$N - round(I_star) - round(S_star) else pars$N - pars$I0 - S0
+  if (pars$I0_at_steady_state){
+    S <- round(S_star)
+    I <- round(I_star)
+    R <-pars$N - round(I_star) - round(S_star)
+  }
+  else
+  {
+    S <- S0
+    I <-  pars$I0
+    pars$N - pars$I0 - S0
+  }
 
   list(S = S, I = I, R = R)
 }
@@ -164,8 +176,6 @@ run_with_repetitions <- function(
     }
   )
 
-  # df <- lapply(seq_len(repetitions), function(simulation) sirstochastic::sirmodel(end_time, pars))
-
   do.call("rbind", dfs)
 }
 
@@ -209,13 +219,6 @@ displaythemodel <- function(df) {
     ggplot2::theme( plot.title = ggplot2::element_text(color="black", size=14,
       face="bold.italic"), axis.title.x = ggplot2::element_text(color="blue", size=14, face="bold"),
       axis.title.y = ggplot2::element_text(color="blue", size=14, face="bold.italic"))
-
-  # this is FALSE even when set TRUE at the moment - needs sorting
-  # if(df$plotsave[[1]]){
-  #   savedfilename <- paste(numruns, 'run(s)', datapoints, 'pts.png')
-  #   ggplot2::ggsave(
-  #     savedfilename, h = 9/3, w = 16/3, type = "cairo-png")
-  # }
 
 }
 

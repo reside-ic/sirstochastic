@@ -13,7 +13,6 @@
 #' * `I0` initial number of infected people
 #' * `dt` time step
 #' * `I0_at_steady_state` boolean value
-#' * `plotsave` TRUE if plotted data is to be saved to file
 #'
 #' @return parameter list
 #' @export
@@ -78,8 +77,7 @@ sir_model_parameters_defaults <- function() {
     N = 10000,
     num = 100,
     I0 = 5,
-    dt = 0.01,
-    plotsave = TRUE)
+    dt = 0.01)
 
   pars
 }
