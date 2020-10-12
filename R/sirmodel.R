@@ -1,15 +1,18 @@
 #' Stochastic SIR model
 #'
 #' This takes N iterations for time step dt
-#' @param pars list of parameters
-#' @param end_time end time of data
+#'
+#' @param end_time en time of data
+#' @param pars parameter list
+#'
 #' @return dataframe
 #' @export
 #'
 #' @examples
-#' sirmodel(100, list())
+#' compartmental_sirmodel(100, list())
 #' run_with_repetitions(100, 1, list(), FALSE)
-sirmodel <- function(end_time, pars = NULL) {
+
+compartmental_sirmodel <- function(end_time, pars = NULL) {
 
   pars <- get_parameters(pars)
 
@@ -170,7 +173,7 @@ run_with_repetitions <- function(
   dfs <- fapply(
     seq(repetitions),
     function(repetition) {
-      df <- sirmodel(end_time, pars)
+      df <- compartmental_sirmodel(end_time, pars)
       df$repetition <- repetition
       df
     }
@@ -206,19 +209,43 @@ displaythemodel <- function(df) {
   # Convert to long format
   df <- tidyr::pivot_longer(tibble::as_tibble(df), c("S", "I", "R"))
 
-  ggplot2::ggplot(df, ggplot2::aes(x=df$time, y=df$value, group=interaction(df$group, df$name), colour=df$name ) ) +
-    ggplot2::geom_line(size=1) +
-    ggplot2::theme_bw() +
-    ggplot2::labs(title = "SIR against time", subtitle = subtitle, color="Category") +
-    ggplot2::labs(y ="S, I, & R", x="time") +
-    ggplot2::theme(
-      legend.justification = c("right", "top"),
-      legend.box = c("horizontal", "vertical")
-    ) +
-    ggplot2::scale_colour_manual(values=c("blue", "red", "purple")) +
-    ggplot2::theme( plot.title = ggplot2::element_text(color="black", size=14,
-      face="bold.italic"), axis.title.x = ggplot2::element_text(color="blue", size=14, face="bold"),
-      axis.title.y = ggplot2::element_text(color="blue", size=14, face="bold.italic"))
+  # ggplot2::ggplot(df, ggplot2::aes(x=df$time, y=df$value, group=interaction(df$group, df$name), colour=df$name ) ) +
+  #   ggplot2::geom_line(size=0.6) +
+  #   ggplot2::theme_bw() +
+  #   ggplot2::labs(title = "SIR against time", subtitle = subtitle, color="Category") +
+  #   ggplot2::labs(y ="S, I, & R", x="time") +
+  #   ggplot2::scale_colour_manual(values=c("blue", "red", "purple"))
+  #   ggplot2::theme(
+  #     legend.justification = c("right", "top"),
+  #     legend.box = c("horizontal", "vertical")) + #,
+      # text = ggplot2::element_text(color = "#444444", family = 'Helvetica Neue'),
+      # plot.title = ggplot2::element_text(size = 26, color = '#333333'),
+      # plot.subtitle = ggplot2::element_text(size = 13),
+      # axis.title.x = ggplot2::element_text(size = 16, color = '#333333'),
+      # axis.title.y = ggplot2::element_text(angle = 0, vjust = .5))
+    # ggplot2::theme( plot.title = ggplot2::element_text(color="black", size=14,
+    #   face="bold.italic"), axis.title.x = ggplot2::element_text(color="blue", size=14, face="bold"),
+    #   axis.title.y = ggplot2::element_text(color="blue", size=14, face="bold.italic"))
+
+
+    ggplot2::ggplot(df, ggplot2::aes(x=df$time, y=df$value, group=interaction(df$group, df$name), colour=df$name ) ) +
+      ggplot2::geom_line(size=0.5) +
+      ggplot2::theme_bw() +
+      ggplot2::labs(title = "SIR model simulation", subtitle = subtitle, color="Category") +
+      ggplot2::labs(y ="S, I, & R", x="time") +
+      ggplot2::theme(
+        legend.justification = c("right", "top"),
+        legend.box = c("horizontal", "vertical")
+      ) +
+      ggplot2::scale_colour_manual(values=c("blue", "red", "green")) +
+      ggplot2::theme(text = ggplot2::element_text(color = "#444444", family = 'Helvetica Neue'),
+      plot.title = ggplot2::element_text(size = 26, color = '#333333'),
+      plot.subtitle = ggplot2::element_text(size = 13),
+      axis.title.x = ggplot2::element_text(size = 16, color = '#333333'),
+      axis.title.y = ggplot2::element_text(angle = 0, vjust = .5))
+#       ggplot2::theme( plot.title = ggplot2::element_text(color="black", size=14,
+#         face="bold.italic"), axis.title.x = ggplot2::element_text(color="blue", size=14, face="bold"),
+#         axis.title.y = ggplot2::element_text(color="blue", size=14, face="bold.italic"))
 
 }
 
