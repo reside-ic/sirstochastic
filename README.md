@@ -4,7 +4,9 @@
 # sirstochastic
 
 <!-- badges: start -->
-[![R build status](https://github.com/reside-ic/sirstochastic/workflows/R-CMD-check/badge.svg)](https://github.com/reside-ic/sirstochastic/actions)
+
+[![R build
+status](https://github.com/reside-ic/sirstochastic/workflows/R-CMD-check/badge.svg)](https://github.com/reside-ic/sirstochastic/actions)
 <!-- badges: end -->
 
 The goal of package sirstochastic is to run simulations of single and

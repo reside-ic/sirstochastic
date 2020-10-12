@@ -56,7 +56,7 @@ options(warn = - 1)
 pars <- sirstochastic::get_parameters()
 end_time <- 100
 
-df <- sirstochastic::sirmodel(end_time, pars)
+df <- sirstochastic::compartmental_sirmodel(end_time, pars)
 sirstochastic:::displaythemodel(df)
 
 ```
@@ -68,7 +68,7 @@ options(warn = - 1)
 pars <- sirstochastic::get_parameters()
 end_time <- 100
 
-df <- lapply(seq_len(100), function(simulation) sirstochastic::sirmodel(end_time, pars))
+df <- lapply(seq_len(100), function(simulation) sirstochastic::compartmental_sirmodel(end_time, pars))
 
 sirstochastic:::displaythemodel(df) 
 
