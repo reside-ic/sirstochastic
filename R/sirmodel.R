@@ -210,21 +210,21 @@ displaythemodel <- function(df) {
   # Convert to long format
   df <- tidyr::pivot_longer(tibble::as_tibble(df), c("S", "I", "R"))
 
-    ggplot2::ggplot(df, ggplot2::aes(x=df$time, y=df$value, group=interaction(df$group, df$name), colour=df$name ) ) +
-      ggplot2::geom_line(size=0.5) +
-      ggplot2::theme_bw() +
-      ggplot2::labs(title = "SIR model simulation", subtitle = subtitle, color="Compartment") +
-      ggplot2::labs(y ="S, I, & R", x="time") +
-      ggplot2::theme(
-        legend.justification = c("right", "top"),
-        legend.box = c("horizontal", "vertical")
-      ) +
-      ggplot2::scale_colour_manual(values=c("blue", "red", "green")) +
-      ggplot2::theme(text = ggplot2::element_text(color = "#444444", family = 'Helvetica Neue'),
-      plot.title = ggplot2::element_text(size = 26, color = '#333333'),
-      plot.subtitle = ggplot2::element_text(size = 13),
-      axis.title.x = ggplot2::element_text(size = 16, color = '#333333'),
-      axis.title.y = ggplot2::element_text(angle = 0, vjust = .5))
+  ggplot2::ggplot(df, ggplot2::aes(x=df$time, y=df$value, group=interaction(df$group, df$name), colour=df$name ) ) +
+    ggplot2::geom_line(size=0.5) +
+    ggplot2::theme_bw() +
+    ggplot2::labs(title = "SIR model simulation", subtitle = subtitle, color="Compartment") +
+    ggplot2::labs(y ="S, I, & R", x="time") +
+    ggplot2::theme(
+      legend.justification = c("right", "top"),
+      legend.box = c("horizontal", "vertical")
+    ) +
+    ggplot2::scale_colour_manual(values=c("blue", "red", "green")) +
+    ggplot2::theme(text = ggplot2::element_text(color = "#444444", family = 'Helvetica Neue'),
+    plot.title = ggplot2::element_text(size = 26, color = '#333333'),
+    plot.subtitle = ggplot2::element_text(size = 13),
+    axis.title.x = ggplot2::element_text(size = 16, color = '#333333'),
+    axis.title.y = ggplot2::element_text(angle = 0, vjust = .5))
 
 }
 
