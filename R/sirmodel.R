@@ -1,4 +1,4 @@
-#' Stochastic SIR model
+#' Stochastic SIR model, compartmental
 #'
 #' This takes N iterations for time step dt
 #'
@@ -11,7 +11,7 @@
 #' @examples
 #' compartmental_sirmodel(100, list())
 #' run_with_repetitions(100, 1, list(), FALSE)
-
+#' individual_sirmodel(100,list())
 compartmental_sirmodel <- function(end_time, pars = NULL) {
 
   pars <- get_parameters(pars)
@@ -84,7 +84,7 @@ initialisesir <- function(pars){
   {
     S <- S0
     I <- pars$I0
-    R <- pars$N - pars$I0 - S0
+    R <- R0
   }
 
   list(S = S, I = I, R = R)
@@ -210,23 +210,132 @@ displaythemodel <- function(df) {
   # Convert to long format
   df <- tidyr::pivot_longer(tibble::as_tibble(df), c("S", "I", "R"))
 
-    ggplot2::ggplot(df, ggplot2::aes(x=df$time, y=df$value, group=interaction(df$group, df$name), colour=df$name ) ) +
-      ggplot2::geom_line(size=0.5) +
-      ggplot2::theme_bw() +
-      ggplot2::labs(title = "SIR model simulation", subtitle = subtitle, color="Compartment") +
-      ggplot2::labs(y ="S, I, & R", x="time") +
-      ggplot2::theme(
-        legend.justification = c("right", "top"),
-        legend.box = c("horizontal", "vertical")
-      ) +
-      ggplot2::scale_colour_manual(values=c("blue", "red", "green")) +
-      ggplot2::theme(text = ggplot2::element_text(color = "#444444", family = 'Helvetica Neue'),
-      plot.title = ggplot2::element_text(size = 26, color = '#333333'),
-      plot.subtitle = ggplot2::element_text(size = 13),
-      axis.title.x = ggplot2::element_text(size = 16, color = '#333333'),
-      axis.title.y = ggplot2::element_text(angle = 0, vjust = .5))
+  ggplot2::ggplot(df, ggplot2::aes(x=df$time, y=df$value, group=interaction(df$group, df$name), colour=df$name ) ) +
+    ggplot2::geom_line(size=0.5) +
+    ggplot2::theme_bw() +
+    ggplot2::labs(title = "SIR model simulation", subtitle = subtitle, color="Compartment") +
+    ggplot2::labs(y ="S, I, & R", x="time") +
+    ggplot2::theme(
+      legend.justification = c("right", "top"),
+      legend.box = c("horizontal", "vertical")
+    ) +
+    ggplot2::scale_colour_manual(values=c("blue", "red", "green")) +
+    ggplot2::theme(text = ggplot2::element_text(color = "#444444", family = 'Helvetica Neue'),
+    plot.title = ggplot2::element_text(size = 26, color = '#333333'),
+    plot.subtitle = ggplot2::element_text(size = 13),
+    axis.title.x = ggplot2::element_text(size = 16, color = '#333333'),
+    axis.title.y = ggplot2::element_text(angle = 0, vjust = .5))
+}
+
+plot_states <- function(output) {
+  ggplot(
+    melt(output, 'timestep'),
+    aes(x = timestep, y = value, group = variable)) +
+    geom_line(aes(color = variable), size=0.5) +
+    ggplot2::theme_bw() +
+    ggplot2::labs(title = "SIR model simulation (individual)", color="Individual") +
+    ggplot2::labs(y ="S, I, & R", x="time") +
+    ggplot2::scale_colour_manual(values=c("blue", "red", "green")) +
+    ggplot2::theme(text = ggplot2::element_text(color = "#444444", family = 'Helvetica Neue'),
+                   plot.title = ggplot2::element_text(size = 26, color = '#333333'),
+                   plot.subtitle = ggplot2::element_text(size = 13),
+                   axis.title.x = ggplot2::element_text(size = 16, color = '#333333'),
+                   axis.title.y = ggplot2::element_text(angle = 0, vjust = .5))
+}
+
+#' Stochastic SIR model, individual
+#'
+#' Takes timestep steps over time for population N
+#'
+#' @param end_time end time for data
+#' @param pars parameter list
+#'
+#' @return dataframe
+#'
+#' @export
+#'
+#' @examples
+#' individual_sirmodel(100, list())
+individual_sirmodel <- function(end_time, pars = NULL) {
+
+  pars <- get_parameters(pars)
+  population <- pars$N
+
+  process <- function(api) {
+    # calculate information for infections, recoveries and births
+    inf <- infections(pars, length(api$get_state(human, I)), length(api$get_state(human, S)))
+    rec <- recoveries(pars, length(api$get_state(human, I)))
+    bir <- births(pars, length(api$get_state(human, R)), inf, rec)
+    #infection_process -> S to I
+    n_to_infect <- inf$n_infections_S
+    susceptible <- api$get_state(human, S)
+    infected <- susceptible[sample.int(length(susceptible), n_to_infect)]
+    api$queue_state_update(human, I, infected)
+    #recovery_process -> I to R
+    n_to_recover <- rec$n_recoveries_I
+    infected <- api$get_state(human, I)
+    recovered <- infected[sample.int(length(infected), n_to_recover)]
+    api$queue_state_update(human, R, recovered)
+    #Recovered to susceptible -> R to S
+    # n_to_susceptible <- n_to_recover - bir$n_deaths_R
+    # from_state <- api$get_state(human, R)
+    #
+    # if(length(from_state) != 0 && length(from_state) > n_to_susceptible){
+    #   thenewsusceptible <- from_state[sample.int(length(from_state), n_to_susceptible)]
+    #   api$queue_state_update(human, S, thenewsusceptible)
+    # }
+  }
+
+  render_state_sizes <- function(api) {
+    api$render('susceptable_counts', length(api$get_state(human, S)))
+    api$render('infected_counts', length(api$get_state(human, I)))
+    api$render('recovered_counts', length(api$get_state(human, R)))
+  }
+
+  # Set no of infections, NI, no of susceptibles, pops,
+  # no of recovered at the start and no of time points
+  NI <- pars$I0
+  pops <- population - NI
+  timestep <- pars$num/pars$dt
+  S <- State$new('S', pops)
+  I <- State$new('I', NI)
+  R <- State$new('R', 0)
+
+  human <- Individual$new('human', list(S, I, R))
+
+  output <- simulate(human,
+                     list(process,
+                     render_state_sizes),
+                     timestep)
+
+  plot_states <- function(output) {
+    ggplot(
+      melt(output, 'timestep'),
+      aes(x = timestep, y = value, group = variable)
+    ) + geom_line(aes(color = variable)) +
+      ggplot2::labs(title = "SIR model simulation (individual)", color="Individual") +
+      ggplot2::labs(y ="S, I, & R", x="time")
+  }
+  plot_states(output)
+
+  output
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -2,5 +2,6 @@
 
 export(compartmental_sirmodel)
 export(get_parameters)
+export(individual_sirmodel)
 export(run_with_repetitions)
 importFrom(stats,rbinom)

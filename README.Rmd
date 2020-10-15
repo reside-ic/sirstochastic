@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 [![R build status](https://github.com/reside-ic/sirstochastic/workflows/R-CMD-check/badge.svg)](https://github.com/reside-ic/sirstochastic/actions)
 <!-- badges: end -->
 
-The goal of package sirstochastic is to run simulations of single and multiple iterations of the SIR stochastic model.
+The goal of package sirstochastic is to run simulations of single and multiple iterations of the SIR stochastic model, compartmental and individual.
 
 ## Installation
 
@@ -36,7 +36,7 @@ And the development version from [GitHub](https://github.com/) with:
 # install.packages("devtools")
 devtools::install_github("reside-ic/sirstochastic")
 ```
-
+##COMPARTMENTAL
 ## Equations
 The equations defining the model are:
 
@@ -73,8 +73,71 @@ df <- lapply(seq_len(100), function(simulation) sirstochastic::compartmental_sir
 sirstochastic:::displaythemodel(df) 
 
 ```
+## INDIVIDUAL
 
+```{r individual_toy}
+library('remotes')
+install_github('mrc-ide/individual')
+library(individual)
+library(ggplot2)
+library(reshape2)
 
+# population <- 10000
+# average_age <- 30
+# S <- State$new('S', population)
+# I <- State$new('I', 0)
+# R <- State$new('R', 0)
+# birth <- Variable$new('birth', rexp(population, 1/average_age))
+# human <- Individual$new('human', list(S, I, R))
+# 
+# render_state_sizes <- function(api) {
+#   api$render('susceptable_counts', length(api$get_state(human, S)))
+#   api$render('infected_counts', length(api$get_state(human, I)))
+#   api$render('recovered_counts', length(api$get_state(human, R)))
+# }
+
+# R_t <- 0.2
+
+# # we want to move individuals from S to I with rate R based on infected people in the population
+# infection_process <- function(api) {
+#   n_to_infect <- length(api$get_state(human, I)) * R_t
+#   infected <- sample.int(length(api$get_state(human, S)), n_to_infect)
+#   api$queue_state_update(human, I, infected)
+# }
+# 
+# S <- State$new('S', population)
+# I <- State$new('I', 10)
+# R <- State$new('R', 0)
+# human <- Individual$new('human', list(S, I, R))
+
+# output <- simulate(human, list(infection_process, render_state_sizes), 10000)
+# 
+# # plot_states <- function(df) {
+# #   ggplot(
+# #     melt(df, 'timestep'),
+# #     aes(x = timestep, y = value, group = variable)
+# #   ) + geom_line(aes(color = variable))
+# # }
+# sirstochastic:::plot_states(output)
+```
+
+# SIR individul model with compartmental probabilities
+```{r 1run10000pointsindividual, echo=FALSE}
+library('remotes')
+install_github('mrc-ide/individual')
+library(individual)
+library(ggplot2)
+library(reshape2)
+
+options(warn = - 1) 
+pars <- sirstochastic::get_parameters()
+end_time <- 100
+
+output <- sirstochastic::individual_sirmodel(end_time, pars)
+
+sirstochastic:::plot_states(output)
+
+```
 ## License
 
 MIT © Imperial College of Science, Technology and Medicine

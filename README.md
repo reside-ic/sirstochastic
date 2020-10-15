@@ -10,7 +10,8 @@ status](https://github.com/reside-ic/sirstochastic/workflows/R-CMD-check/badge.s
 <!-- badges: end -->
 
 The goal of package sirstochastic is to run simulations of single and
-multiple iterations of the SIR stochastic model.
+multiple iterations of the SIR stochastic model, compartmental and
+individual.
 
 ## Installation
 
@@ -29,9 +30,7 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("reside-ic/sirstochastic")
 ```
 
-## Equations
-
-The equations defining the model are:
+\#\#COMPARTMENTAL \#\# Equations The equations defining the model are:
 
   - dS/dt = - beta \* S \* I / N
   - dI/dt = beta \* S \* I / N - sigma \* I
@@ -56,7 +55,67 @@ This time the model is run a 100 times for 10,000 iterations with a time
 step of 0.01 using the same code.
 
 <img src="man/figures/README-100runs10000points-1.png" width="100%" />
+\#\# INDIVIDUAL
 
-## License
+``` r
+library('remotes')
+install_github('mrc-ide/individual')
+#> Skipping install of 'individual' from a github remote, the SHA1 (f0c161d5) has not changed since last install.
+#>   Use `force = TRUE` to force installation
+library(individual)
+#> 
+#> Attaching package: 'individual'
+#> The following object is masked from 'package:stats':
+#> 
+#>     simulate
+library(ggplot2)
+library(reshape2)
+
+# population <- 10000
+# average_age <- 30
+# S <- State$new('S', population)
+# I <- State$new('I', 0)
+# R <- State$new('R', 0)
+# birth <- Variable$new('birth', rexp(population, 1/average_age))
+# human <- Individual$new('human', list(S, I, R))
+# 
+# render_state_sizes <- function(api) {
+#   api$render('susceptable_counts', length(api$get_state(human, S)))
+#   api$render('infected_counts', length(api$get_state(human, I)))
+#   api$render('recovered_counts', length(api$get_state(human, R)))
+# }
+
+# R_t <- 0.2
+
+# # we want to move individuals from S to I with rate R based on infected people in the population
+# infection_process <- function(api) {
+#   n_to_infect <- length(api$get_state(human, I)) * R_t
+#   infected <- sample.int(length(api$get_state(human, S)), n_to_infect)
+#   api$queue_state_update(human, I, infected)
+# }
+# 
+# S <- State$new('S', population)
+# I <- State$new('I', 10)
+# R <- State$new('R', 0)
+# human <- Individual$new('human', list(S, I, R))
+
+# output <- simulate(human, list(infection_process, render_state_sizes), 10000)
+# 
+# # plot_states <- function(df) {
+# #   ggplot(
+# #     melt(df, 'timestep'),
+# #     aes(x = timestep, y = value, group = variable)
+# #   ) + geom_line(aes(color = variable))
+# # }
+# sirstochastic:::plot_states(output)
+```
+
+# SIR individul model with compartmental probabilities
+
+    #> Skipping install of 'individual' from a github remote, the SHA1 (f0c161d5) has not changed since last install.
+    #>   Use `force = TRUE` to force installation
+
+<img src="man/figures/README-1run10000pointsindividual-1.png" width="100%" />
+\#\# License
 
 MIT © Imperial College of Science, Technology and Medicine
