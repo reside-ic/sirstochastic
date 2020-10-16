@@ -4,7 +4,7 @@
 \alias{individual_sirmodel}
 \title{Stochastic SIR model, individual}
 \usage{
-individual_sirmodel(end_time, pars = NULL)
+individual_sirmodel(end_time, pars = NULL, vars = NULL, events = NULL)
 }
 \arguments{
 \item{end_time}{end time for data}
@@ -18,5 +18,5 @@ dataframe
 Takes timestep steps over time for population N
 }
 \examples{
-individual_sirmodel(100,list())
+individual_sirmodel(100, list())
 }

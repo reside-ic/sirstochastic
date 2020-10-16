@@ -4,6 +4,7 @@
 #' Parameters defined below
 #'
 #' * `pars` list of parameters
+#' Compartmental
 #' * `beta` contact rate
 #' * `nu rate` of recovery
 #' * `mu rate` of death
@@ -13,6 +14,12 @@
 #' * `I0` initial number of infected people
 #' * `dt` time step
 #' * `I0_at_steady_state` boolean value
+#'
+#' Individual - note tis uses
+#' * `average_age` average age for population
+#' * `includeage` if age is to be included, is TRUE
+#' * `includeimmunity` if immunity is to be included, is TRUE
+#' * `includebirth` if birth is to be included, is TRUE
 #'
 #' @return parameter list
 #' @export
@@ -62,6 +69,10 @@ get_parameters <- function(overrides = list()) {
     stop("'dt' must be positive and greater than 0")
   }
 
+  if(pars$average_age <= 0){
+    stop("'age' must be positive and greater than 0")
+  }
+
   pars
 
 }
@@ -69,6 +80,7 @@ get_parameters <- function(overrides = list()) {
 sir_model_parameters_defaults <- function() {
 
   pars <- list(
+    # Compartmental
     beta = 0.5,
     nu = 0.3,
     mu = 0.001,
@@ -77,8 +89,80 @@ sir_model_parameters_defaults <- function() {
     N = 10000,
     num = 100,
     I0 = 5,
-    dt = 0.01)
+    dt = 0.01,
+    # individual only
+    includeage = FALSE,
+    average_age = 30,
+    includebirth = FALSE,
+    includeimmunity = FALSE)
 
   pars
 }
 
+#' Variable list: immune, age, birth or location
+#'
+#' @param overrides use a named variable list instead of defaults
+#'
+#' @return variable list
+#' @export
+get_variables <- function(overrides = list()) {
+
+  vars <- sir_individual_model_variables_defaults()
+
+  # Override pars with any client specified ones
+  if (!is.list(overrides) && !is.null(overrides)) {
+    stop('overrides must be a list')
+  }
+
+  for (name in names(overrides)) {
+    if (!(name %in% names(vars))) {
+      stop(paste('unknown parameter', name, sep=' '))
+    }
+    vars[[name]] <- overrides[[name]]
+  }
+}
+
+sir_individual_model_variables_defaults <- function() {
+
+  vars <- list(
+   # individual only
+   immune = NULL,
+   age = NULL,
+   birth = NULL,
+   location = NULL)
+
+  vars
+}
+
+#' Events list
+#'
+#' @param overrides use a named events list instead of defaults
+#'
+#' @return events list
+#' @export
+get_events <- function(overrides = list()) {
+
+  events <- sir_individual_model_events_defaults()
+
+  # Override pars with any client specified ones
+  if (!is.list(overrides) && !is.null(overrides)) {
+    stop('overrides must be a list')
+  }
+
+  for (name in names(overrides)) {
+    if (!(name %in% names(events))) {
+      stop(paste('unknown parameter', name, sep=' '))
+    }
+    events[[name]] <- overrides[[name]]
+  }
+}
+
+sir_individual_model_events_defaults <- function() {
+
+  events <- list(
+    # individual only
+    name = '',
+    listener = NULL)
+
+  events
+}

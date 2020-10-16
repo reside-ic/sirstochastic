@@ -55,7 +55,7 @@ compartmental_sirmodel <- function(end_time, pars = NULL) {
     newr <- updated$newr
   }
 
-  data.frame(S = S, I = I, R = R, time = time, stringsAsFactors = FALSE)
+  data.frame(S = S, I = I, R = R, time = time, type = "Compartmental", legend = "Compartment", stringsAsFactors = FALSE)
 }
 
 initialisesir <- function(pars){
@@ -193,15 +193,15 @@ displaythemodel <- function(df) {
   subtitle <- ""
 
   if(is.data.frame(df)){
-    datapoints <- paste(nrow(df) - 1)
+    numdatapoints <- paste(length(df$time))
     numruns <- 1
     df <- list(df)
-    subtitle <- paste('Simulation for', numruns, 'run and', datapoints, 'data points')
+    subtitle <- paste('Simulation for', numruns, 'run and', numdatapoints, 'data points')
   }
   else{
     numruns <- length(df)
-    datapoints <- length(df[[1]][[1]])-1
-    subtitle <- paste('Simulation for', numruns, 'runs,', datapoints, 'data points per run')
+    numdatapoints <- length(df[[1]][[1]])-1
+    subtitle <- paste('Simulation for', numruns, 'runs,', numdatapoints, 'data points per run')
   }
 
   # Create group id for data
@@ -210,37 +210,23 @@ displaythemodel <- function(df) {
   # Convert to long format
   df <- tidyr::pivot_longer(tibble::as_tibble(df), c("S", "I", "R"))
 
+  strname <- paste("SIR", df$type, "Model Simulation")
+
   ggplot2::ggplot(df, ggplot2::aes(x=df$time, y=df$value, group=interaction(df$group, df$name), colour=df$name ) ) +
     ggplot2::geom_line(size=0.5) +
     ggplot2::theme_bw() +
-    ggplot2::labs(title = "SIR model simulation", subtitle = subtitle, color="Compartment") +
+    ggplot2::labs(title = strname, subtitle = subtitle, color=df$legend) +
     ggplot2::labs(y ="S, I, & R", x="time") +
     ggplot2::theme(
       legend.justification = c("right", "top"),
       legend.box = c("horizontal", "vertical")
     ) +
     ggplot2::scale_colour_manual(values=c("blue", "red", "green")) +
-    ggplot2::theme(text = ggplot2::element_text(color = "#444444", family = 'Helvetica Neue'),
+    ggplot2::theme(text = ggplot2::element_text(color = "#444444", family = 'Lucida Bright'),
     plot.title = ggplot2::element_text(size = 26, color = '#333333'),
     plot.subtitle = ggplot2::element_text(size = 13),
     axis.title.x = ggplot2::element_text(size = 16, color = '#333333'),
     axis.title.y = ggplot2::element_text(angle = 0, vjust = .5))
-}
-
-plot_states <- function(output) {
-  ggplot(
-    melt(output, 'timestep'),
-    aes(x = timestep, y = value, group = variable)) +
-    geom_line(aes(color = variable), size=0.5) +
-    ggplot2::theme_bw() +
-    ggplot2::labs(title = "SIR model simulation (individual)", color="Individual") +
-    ggplot2::labs(y ="S, I, & R", x="time") +
-    ggplot2::scale_colour_manual(values=c("blue", "red", "green")) +
-    ggplot2::theme(text = ggplot2::element_text(color = "#444444", family = 'Helvetica Neue'),
-                   plot.title = ggplot2::element_text(size = 26, color = '#333333'),
-                   plot.subtitle = ggplot2::element_text(size = 13),
-                   axis.title.x = ggplot2::element_text(size = 16, color = '#333333'),
-                   axis.title.y = ggplot2::element_text(angle = 0, vjust = .5))
 }
 
 #' Stochastic SIR model, individual
@@ -256,10 +242,13 @@ plot_states <- function(output) {
 #'
 #' @examples
 #' individual_sirmodel(100, list())
-individual_sirmodel <- function(end_time, pars = NULL) {
-
+individual_sirmodel <- function(end_time, pars = NULL, vars = NULL, events = NULL) {
+  warnings()
   pars <- get_parameters(pars)
   population <- pars$N
+
+  vars <- get_variables(vars)
+  events <- get_events(events)
 
   process <- function(api) {
     # calculate information for infections, recoveries and births
@@ -269,21 +258,52 @@ individual_sirmodel <- function(end_time, pars = NULL) {
     #infection_process -> S to I
     n_to_infect <- inf$n_infections_S
     susceptible <- api$get_state(human, S)
-    infected <- susceptible[sample.int(length(susceptible), n_to_infect)]
-    api$queue_state_update(human, I, infected)
+
+    if(pars$includeimmunity){
+      # Get the immunity for susceptible humans and use the complement to modify the
+      # infection rate
+      rate_modifier <- 1 - api$get_variable(human, immunity, susceptible)
+      rate <- .3
+      api$queue_state_update(human, I,
+                             susceptible[runif(length(susceptible)) < (rate * rate_modifier)]
+      )
+    }
+    else{
+      infected <- susceptible[sample.int(length(susceptible), n_to_infect)]
+      api$queue_state_update(human, I, infected)
+    }
+
     #recovery_process -> I to R
     n_to_recover <- rec$n_recoveries_I
     infected <- api$get_state(human, I)
+
     recovered <- infected[sample.int(length(infected), n_to_recover)]
     api$queue_state_update(human, R, recovered)
-    #Recovered to susceptible -> R to S
+    # #Recovered to susceptible -> R to S
     # n_to_susceptible <- n_to_recover - bir$n_deaths_R
-    # from_state <- api$get_state(human, R)
+    # #from_state <- api$get_state(human, R)
+    # from_state <- api$get_state(human, I)
     #
-    # if(length(from_state) != 0 && length(from_state) > n_to_susceptible){
-    #   thenewsusceptible <- from_state[sample.int(length(from_state), n_to_susceptible)]
-    #   api$queue_state_update(human, S, thenewsusceptible)
+    # if(pars$includeimmunity){
+    #   print("immunity in R to S")
+    #   rate <- .2
+    #   recovered <- from_state[runif(length(from_state)) < rate]
+    #   api$queue_state_update(
+    #     human,R,recovered
+    #   )
+    #   api$queue_variable_update(
+    #     human,immunity,api$get_parameters()$immunity_level,recovered
+    #   )
     # }
+    # else
+    # {
+    #   # if(length(from_state) != 0 && length(from_state) > n_to_susceptible){
+    #   #   thenewsusceptible <- from_state[sample.int(length(from_state), n_to_susceptible)]
+    #   #   api$queue_state_update(human, S, thenewsusceptible)
+    #   # }
+    # }
+
+
   }
 
   render_state_sizes <- function(api) {
@@ -292,7 +312,7 @@ individual_sirmodel <- function(end_time, pars = NULL) {
     api$render('recovered_counts', length(api$get_state(human, R)))
   }
 
-  # Set no of infections, NI, no of susceptibles, pops,
+  # Set no of infections, NI, no of susceptible, pops,
   # no of recovered at the start and no of time points
   NI <- pars$I0
   pops <- population - NI
@@ -301,31 +321,70 @@ individual_sirmodel <- function(end_time, pars = NULL) {
   I <- State$new('I', NI)
   R <- State$new('R', 0)
 
-  human <- Individual$new('human', list(S, I, R))
+  # Variables
+  immunity <- 0
+  age <- 0
+  birth <- 0
+  recipavage <- 1 / pars$average_age
+  if(pars$includeimmunity)immunity <- Variable$new('immunity', runif(population, 0, .4))
+  if(pars$includeage)age <- Variable$new('age', rexp(population, rate=1/10))
+  if(pars$includebirth)birth <- Variable$new('birth',  rexp(population, recipavage))
+
+  human <- Individual$new('human', list(S, I, R), variables = vars, events = events)
 
   output <- simulate(human,
                      list(process,
                      render_state_sizes),
-                     timestep)
+                     timestep,
+                     parameters = list(immunity_level = .6))
 
-  plot_states <- function(output) {
-    ggplot(
-      melt(output, 'timestep'),
-      aes(x = timestep, y = value, group = variable)
-    ) + geom_line(aes(color = variable)) +
-      ggplot2::labs(title = "SIR model simulation (individual)", color="Individual") +
-      ggplot2::labs(y ="S, I, & R", x="time")
-  }
-  plot_states(output)
-
-  output
+  df <-   data.frame(S = output$susceptable_counts, I = output$infected_counts, R = output$recovered_counts, time = output$time, type = "Individual",  legend = "Individual", stringsAsFactors = FALSE)
 
 }
 
+# process <- function(api) {
+#
+#   # calculate information for infections, recoveries and births
+#   inf <- infections(pars, length(api$get_state(human, I)), length(api$get_state(human, S)))
+#   rec <- recoveries(pars, length(api$get_state(human, I)))
+#   bir <- births(pars, length(api$get_state(human, R)), inf, rec)
+#
+#   #infection_process -> S to I
+#   n_to_infect <- inf$n_infections_S
+#   susceptible <- api$get_state(human, S)
+#   infected <- susceptible[sample.int(length(susceptible), n_to_infect)]
+#   api$queue_state_update(human, I, infected)
+#
+#   #recovery_process -> I to R
+#   n_to_recover <- rec$n_recoveries_I
+#   infected <- api$get_state(human, I)
+#   recovered <- infected[sample.int(length(infected), n_to_recover)]
+#   api$queue_state_update(human, R, recovered)
+#
+#   #Recovered to susceptible -> R to S
+#   # n_to_susceptible <- n_to_recover - bir$n_deaths_R
+#   # from_state <- api$get_state(human, R)
+#   #
+#   # if(length(from_state) != 0 && length(from_state) > n_to_susceptible){
+#   #   thenewsusceptible <- from_state[sample.int(length(from_state), n_to_susceptible)]
+#   #   api$queue_state_update(human, S, thenewsusceptible)
+#   # }
+# }
 
-
-
-
+# render_state_sizes <- function(api) {
+#   api$render('susceptable_counts', length(api$get_state(human, S)))
+#   api$render('infected_counts', length(api$get_state(human, I)))
+#   api$render('recovered_counts', length(api$get_state(human, R)))
+# }
+#
+# plot_states <- function(output) {
+#   ggplot(
+#     melt(output, 'timestep'),
+#     aes(x = timestep, y = value, group = variable)
+#   ) + geom_line(aes(color = variable)) +
+#     ggplot2::labs(title = "SIR model simulation (individual)", color="Individual") +
+#     ggplot2::labs(y ="S, I, & R", x="time")
+# }
 
 
 
