@@ -73,6 +73,7 @@ step of 0.01 using the same code.
     #>     simulate
 
 <img src="man/figures/README-1run10000pointsindividual-1.png" width="100%" />
-\#\# License
+
+## License
 
 MIT © Imperial College of Science, Technology and Medicine

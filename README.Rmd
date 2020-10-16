@@ -97,6 +97,7 @@ df <- sirstochastic::individual_sirmodel(end_time, pars, vars, events)
 sirstochastic:::displaythemodel(df)
 
 ```
+
 ## License
 
 MIT © Imperial College of Science, Technology and Medicine
