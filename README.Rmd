@@ -88,7 +88,6 @@ library(reshape2)
 
 options(warn = - 1) 
 pars <- sirstochastic::get_parameters()
-end_time <- 100
 
 population <- pars$N
 NI <- pars$I0
