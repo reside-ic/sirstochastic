@@ -11,6 +11,7 @@ get_parameters(overrides = list())
 Parameters defined below
 \itemize{
 \item \code{pars} list of parameters
+Compartmental
 \item \code{beta} contact rate
 \item \verb{nu rate} of recovery
 \item \verb{mu rate} of death
@@ -20,10 +21,22 @@ Parameters defined below
 \item \code{I0} initial number of infected people
 \item \code{dt} time step
 \item \code{I0_at_steady_state} boolean value
+\item \code{n_deaths_S} number of deaths at susceptible stage
+\item \code{n_infections_S} number of infections at susceptible stage
+\item \code{n_deaths_I} number of deaths at infected stage
+\item \code{n_recoveries_I} number of recoveries at infected stage
+\item \code{n_deaths_R} number of deaths at recovered stage
+\item \code{n_births} number of births
+Individual only
+\item \code{average_age} average age for population
+\item \code{includeage} TRUE if age used
+\item \code{includebirth} TRUE if immunity used
+\item \code{indludeimmune} TRUE if immunity used
+\item \code{includelocation} TRUE if location used
 }}
 }
 \value{
-parameter list
+list
 }
 \description{
 Default parameters for SIR model

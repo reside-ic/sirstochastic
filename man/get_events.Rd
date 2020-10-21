@@ -10,7 +10,7 @@ get_events(overrides = list())
 \item{overrides}{use a named events list instead of defaults}
 }
 \value{
-events list
+events
 }
 \description{
 Events list

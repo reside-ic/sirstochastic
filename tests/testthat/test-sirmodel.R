@@ -1,35 +1,9 @@
-test_that("test correct default parameters returned from get_parameters()", {
-
-  pars <- get_parameters()
-
-  expect_identical(pars$beta, 0.5)
-  expect_identical(pars$nu, 0.3)
-  expect_identical(pars$mu, 0.001)
-  expect_identical(pars$prop_immune, 0)
-  expect_identical(pars$N, 10000)
-  expect_identical(pars$I0, 5)
-  expect_identical(pars$dt, 0.01)
-
-})
-
-test_that("can set parameters", {
-  p <- get_parameters(list(beta = 0))
-  expect_equal(p$beta, 0)
-})
-
 test_that("test that func compartmental_sirmodel when given no data runs with default data", {
 
   pars <- list()
   end_time <- 100
   res <- compartmental_sirmodel(end_time, pars)
   expect_true(!is.null(res))
-
-})
-
-test_that("that when no parameters are set parameter list defaults to sir_model_parameters_defaults", {
-  end_time <- 100
-  pars <- get_parameters(NULL)
-  expect_equal(pars, sir_model_parameters_defaults())
 
 })
 
