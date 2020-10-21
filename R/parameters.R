@@ -1,4 +1,4 @@
-#' Default parameters for SIR model
+#' @title Default parameters for SIR model
 #'
 #' @param overrides use a named parameter list instead of defaults
 #' Parameters defined below
@@ -14,17 +14,21 @@
 #' * `I0` initial number of infected people
 #' * `dt` time step
 #' * `I0_at_steady_state` boolean value
-#'
-#' Individual - note tis uses
+#' * `n_deaths_S` number of deaths at susceptible stage
+#' * `n_infections_S` number of infections at susceptible stage
+#' * `n_deaths_I` number of deaths at infected stage
+#' * `n_recoveries_I` number of recoveries at infected stage
+#' * `n_deaths_R` number of deaths at recovered stage
+#' * `n_births` number of births
+#' Individual only
 #' * `average_age` average age for population
-#' * `includeage` if age is to be included, is TRUE
-#' * `includeimmunity` if immunity is to be included, is TRUE
-#' * `includebirth` if birth is to be included, is TRUE
+#' * `includeage` TRUE if age used
+#' * `includebirth` TRUE if immunity used
+#' * `indludeimmune` TRUE if immunity used
+#' * `includelocation` TRUE if location used
 #'
-#' @return parameter list
+#' @return list
 #' @export
-#'
-
 get_parameters <- function(overrides = list()) {
 
   pars <- sir_model_parameters_defaults()
@@ -57,8 +61,12 @@ get_parameters <- function(overrides = list()) {
     stop("'prop_immune' must be between 0 and 1 (inclusive)")
   }
 
-  if(pars$N == 0 || pars$N < 0){
+  if(pars$N <= 0){
     stop("'N' must be positive")
+  }
+
+  if(pars$num <= 0){
+    stop("'num' must be positive")
   }
 
   if(pars$I0 > pars$N || pars$I0 < 0){
@@ -69,8 +77,32 @@ get_parameters <- function(overrides = list()) {
     stop("'dt' must be positive and greater than 0")
   }
 
+  if(pars$n_deaths_S < 0){
+    stop("'n_deaths_S' must be positive and greater than or equal to 0")
+  }
+
+  if(pars$n_infections_S < 0){
+    stop("'n_infections_S' must be positive and greater than or equal to 0")
+  }
+
+  if(pars$n_deaths_I < 0){
+    stop("'n_deaths_I' must be positive and greater than or equal to 0")
+  }
+
+  if(pars$n_recoveries_I < 0){
+    stop("'n_recoveries_I' must be positive and greater than or equal to 0")
+  }
+
+  if(pars$n_deaths_R < 0){
+    stop("'n_deaths_R' must be positive and greater than or equal to 0")
+  }
+
+  if(pars$n_births < 0){
+    stop("'n_births' must be positive and greater than or equal to 0")
+  }
+
   if(pars$average_age <= 0){
-    stop("'age' must be positive and greater than 0")
+    stop("'average_age' must be positive and greater than 0")
   }
 
   pars
@@ -90,55 +122,28 @@ sir_model_parameters_defaults <- function() {
     num = 100,
     I0 = 5,
     dt = 0.01,
+    n_deaths_S = 0,
+    n_infections_S = 0,
+    n_deaths_I = 0,
+    n_recoveries_I = 0,
+    n_deaths_R = 0,
+    n_births = 0,
     # individual only
-    includeage = FALSE,
     average_age = 30,
+    includeage = FALSE,
     includebirth = FALSE,
-    includeimmunity = FALSE)
+    indludeimmune = FALSE,
+    includelocation = FALSE
+    )
 
   pars
-}
-
-#' Variable list: immune, age, birth or location
-#'
-#' @param overrides use a named variable list instead of defaults
-#'
-#' @return variable list
-#' @export
-get_variables <- function(overrides = list()) {
-
-  vars <- sir_individual_model_variables_defaults()
-
-  # Override pars with any client specified ones
-  if (!is.list(overrides) && !is.null(overrides)) {
-    stop('overrides must be a list')
-  }
-
-  for (name in names(overrides)) {
-    if (!(name %in% names(vars))) {
-      stop(paste('unknown parameter', name, sep=' '))
-    }
-    vars[[name]] <- overrides[[name]]
-  }
-}
-
-sir_individual_model_variables_defaults <- function() {
-
-  vars <- list(
-   # individual only
-   immune = NULL,
-   age = NULL,
-   birth = NULL,
-   location = NULL)
-
-  vars
 }
 
 #' Events list
 #'
 #' @param overrides use a named events list instead of defaults
 #'
-#' @return events list
+#' @return events
 #' @export
 get_events <- function(overrides = list()) {
 

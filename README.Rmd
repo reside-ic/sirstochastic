@@ -88,11 +88,30 @@ library(reshape2)
 
 options(warn = - 1) 
 pars <- sirstochastic::get_parameters()
-vars <- sirstochastic::get_variables()
-events <- sirstochastic::get_events()
 end_time <- 100
 
-df <- sirstochastic::individual_sirmodel(end_time, pars, vars, events)
+population <- pars$N
+NI <- pars$I0
+NR <- 2
+pops <- population - NI - NR
+timestep <- pars$num/pars$dt
+
+S <- State$new('S', pops)
+I <- State$new('I', NI)
+R <- State$new('R', NR)
+
+human <- Individual$new('human', list(S, I, R))
+
+processes <- list(
+  sirstochastic::individual_S_to_I(S, I, human, pars),
+  sirstochastic::individual_I_to_R(I, R, human, pars),
+  sirstochastic::individual_R_to_S(S, R, human, pars),
+  sirstochastic::render_state_sizes(S, I, R, human)
+)
+
+output <- simulate(human, processes, timestep)
+
+df <-   data.frame(S = output$susceptable_counts, I = output$infected_counts, R = output$recovered_counts, time = output$time, type = "Individual",  legend = "Individual", stringsAsFactors = FALSE)
 
 sirstochastic:::displaythemodel(df)
 

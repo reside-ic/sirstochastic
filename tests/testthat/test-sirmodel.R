@@ -1,6 +1,7 @@
 test_that("test correct default parameters returned from get_parameters()", {
 
   pars <- get_parameters()
+
   expect_identical(pars$beta, 0.5)
   expect_identical(pars$nu, 0.3)
   expect_identical(pars$mu, 0.001)
@@ -120,5 +121,99 @@ test_that("test that no one is infected if I is 0 at t = 0", {
   end_time <- 100
   res <- compartmental_sirmodel(end_time, pars)
   expect_true(all(res$I[1:length(res$time)] == 0))
+
+})
+
+test_that("test that an empty simulation exits ok for individual model", {
+  library(individual)
+  library(reshape2)
+
+  population <- 10000
+
+  S <- State$new('S', population)
+  I <- State$new('I', 0)
+  R <- State$new('R', 0)
+
+  human <- Individual$new('human', list(S, I, R))
+
+  output <- simulate(human, list(), 1)
+
+  true_output <- data.frame(timestep = c(1))
+
+  expect_equal(true_output, output)
+
+  expect_error(
+    simulate(human, list(), 0),
+    '*'
+  )
+
+})
+
+test_that("test individual model with one human", {
+  library(individual)
+  library(reshape2)
+
+  pars <- get_parameters()
+
+  population <- pars$N
+  NI <- pars$I0
+  NR <- 2
+  pops <- population - NI - NR
+  timestep <- pars$num/pars$dt
+
+  S <- State$new('S', pops)
+  I <- State$new('I', NI)
+  R <- State$new('R', NR)
+
+  human <- Individual$new('human', list(S, I, R))
+
+  processes <- list(
+    sirstochastic::individual_S_to_I(S, I, human, pars),
+    sirstochastic::individual_I_to_R(I, R, human, pars),
+    sirstochastic::individual_R_to_S(S, R, human, pars),
+    sirstochastic::render_state_sizes(S, I, R, human)
+  )
+
+  output <- simulate(human, processes, timestep)
+
+  df <-   data.frame(S = output$susceptable_counts, I = output$infected_counts, R = output$recovered_counts, time = output$time, type = "Individual",  legend = "Individual", stringsAsFactors = FALSE)
+
+  expect_true(is.data.frame(df))
+
+})
+
+
+test_that("test individual model with one human with immunity", {
+  library(individual)
+  library(reshape2)
+
+  pars <- get_parameters()
+  pars[["indludeimmune"]] <- TRUE
+
+  population <- pars$N
+  NI <- pars$I0
+  NR <- 2
+  pops <- population - NI - NR
+  timestep <- pars$num/pars$dt
+
+  S <- State$new('S', pops)
+  I <- State$new('I', NI)
+  R <- State$new('R', NR)
+
+  immunity <- Variable$new('immunity', runif(population, 0, .5))
+  human <- Individual$new('human', list(S, I, R), variables = list(immunity))
+
+  processes <- list(
+    sirstochastic::individual_S_to_I(S, I, human, pars),
+    sirstochastic::individual_I_to_R(I, R, human, pars),
+    sirstochastic::individual_R_to_S(S, R, human, pars),
+    sirstochastic::render_state_sizes(S, I, R, human)
+  )
+
+  output <- simulate(human, processes, timestep, parameters = list(immunity_level = .6))
+
+  df <-   data.frame(S = output$susceptable_counts, I = output$infected_counts, R = output$recovered_counts, time = output$time, type = "Individual",  legend = "Individual", stringsAsFactors = FALSE)
+
+  expect_true(is.data.frame(df))
 
 })
