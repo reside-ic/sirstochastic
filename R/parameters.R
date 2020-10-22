@@ -21,11 +21,14 @@
 #' * `n_deaths_R` number of deaths at recovered stage
 #' * `n_births` number of births
 #' Individual only
+#' * `variations` any variations to take into account FALSE if not
 #' * `average_age` average age for population
 #' * `includeage` TRUE if age used
 #' * `includebirth` TRUE if immunity used
 #' * `indludeimmune` TRUE if immunity used
 #' * `includelocation` TRUE if location used
+#' * `infection_rate` rate of infection
+#' * `recovery_rate` rate of recovery
 #'
 #' @return list
 #' @export
@@ -105,6 +108,22 @@ get_parameters <- function(overrides = list()) {
     stop("'average_age' must be positive and greater than 0")
   }
 
+  if(pars$infection_rate < 0){
+    stop("'infection_rate' must be positive or equal to 0")
+  }
+
+  if(pars$recovery_rate < 0){
+    stop("'recovery_rate' must be positive or equal to 0")
+  }
+
+  if(pars$age_rate < 0){
+    stop("'age_rate' must be positive or equal to 0")
+  }
+
+  if(pars$location_rate < 0){
+    stop("'location_rate' must be positive or equal to 0")
+  }
+
   pars
 
 }
@@ -129,12 +148,16 @@ sir_model_parameters_defaults <- function() {
     n_deaths_R = 0,
     n_births = 0,
     # individual only
-    average_age = 30,
+    variations = FALSE,
+    average_age = 20,
     includeage = FALSE,
     includebirth = FALSE,
     indludeimmune = FALSE,
-    includelocation = FALSE
-    )
+    includelocation = FALSE,
+    infection_rate = 0.2,
+    recovery_rate = 0.2,
+    age_rate = 0.2,
+    location_rate = 0.1)
 
   pars
 }

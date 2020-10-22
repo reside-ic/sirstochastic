@@ -4,7 +4,7 @@
 \alias{individual_R_to_S}
 \title{Recovered to susceptible -> R to S}
 \usage{
-individual_R_to_S(S, R, human, pars = NULL)
+individual_R_to_S(S, R, human, immunity, age, location, pars = NULL)
 }
 \arguments{
 \item{S}{susceptible}
@@ -13,11 +13,17 @@ individual_R_to_S(S, R, human, pars = NULL)
 
 \item{human}{human}
 
+\item{immunity}{immunity}
+
+\item{age}{age}
+
+\item{location}{location}
+
 \item{pars}{parameter list}
 }
 \description{
 Recovered to susceptible -> R to S
 }
 \examples{
-individual_R_to_S(S, R, human, pars)
+individual_R_to_S(S, R, human, immunity, age, location, pars)
 }

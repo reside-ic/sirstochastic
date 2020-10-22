@@ -123,7 +123,7 @@ test_that("test that an empty simulation exits ok for individual model", {
 
 })
 
-test_that("test individual model with one human", {
+test_that("test individual model with 10000 humans", {
   library(individual)
   library(reshape2)
 
@@ -139,12 +139,15 @@ test_that("test individual model with one human", {
   I <- State$new('I', NI)
   R <- State$new('R', NR)
 
-  human <- Individual$new('human', list(S, I, R))
+  immunity <- Variable$new('immunity',  rep(0, pars$N))
+  age  <- Variable$new('age', rep(0, pars$N))
+  location <- Variable$new('location', rep(0, pars$N))
+  human <- Individual$new('human', list(S, I, R), variables = list(immunity, age, location))
 
   processes <- list(
-    sirstochastic::individual_S_to_I(S, I, human, pars),
-    sirstochastic::individual_I_to_R(I, R, human, pars),
-    sirstochastic::individual_R_to_S(S, R, human, pars),
+    sirstochastic::individual_S_to_I(S, I, human, immunity, age, location, pars),
+    sirstochastic::individual_I_to_R(I, R, human, immunity, age, location, pars),
+    sirstochastic::individual_R_to_S(S, R, human, immunity, age, location, pars),
     sirstochastic::render_state_sizes(S, I, R, human)
   )
 
@@ -157,7 +160,7 @@ test_that("test individual model with one human", {
 })
 
 
-test_that("test individual model with one human with immunity", {
+test_that("test individual model with 10000 humans with immunity", {
   library(individual)
   library(reshape2)
 
@@ -175,16 +178,172 @@ test_that("test individual model with one human with immunity", {
   R <- State$new('R', NR)
 
   immunity <- Variable$new('immunity', runif(population, 0, .5))
-  human <- Individual$new('human', list(S, I, R), variables = list(immunity))
+  age  <- Variable$new('age', rep(0, pars$N))
+  location <- Variable$new('location', rep(0, pars$N))
+  human <- Individual$new('human', list(S, I, R), variables = list(immunity, age, location))
 
   processes <- list(
-    sirstochastic::individual_S_to_I(S, I, human, pars),
-    sirstochastic::individual_I_to_R(I, R, human, pars),
-    sirstochastic::individual_R_to_S(S, R, human, pars),
+    sirstochastic::individual_S_to_I(S, I, human, immunity, age, location, pars),
+    sirstochastic::individual_I_to_R(I, R, human, immunity, age, location, pars),
+    sirstochastic::individual_R_to_S(S, R, human, immunity, age, location, pars),
     sirstochastic::render_state_sizes(S, I, R, human)
   )
 
   output <- simulate(human, processes, timestep, parameters = list(immunity_level = .6))
+
+  df <-   data.frame(S = output$susceptable_counts, I = output$infected_counts, R = output$recovered_counts, time = output$time, type = "Individual",  legend = "Individual", stringsAsFactors = FALSE)
+
+  expect_true(is.data.frame(df))
+
+})
+
+test_that("test individual model with 10000 humans with immunity and age effects", {
+  library(individual)
+  library(reshape2)
+
+  pars <- get_parameters()
+  pars[["indludeimmune"]] <- TRUE
+  pars[["includeage"]] <- TRUE
+
+  population <- pars$N
+  NI <- pars$I0
+  NR <- 2
+  pops <- population - NI - NR
+  timestep <- pars$num/pars$dt
+
+  S <- State$new('S', pops)
+  I <- State$new('I', NI)
+  R <- State$new('R', NR)
+
+  immunity <- Variable$new('immunity', runif(population, 0, .1))
+  rate=1/pars$average_age
+  age <- Variable$new('age', rexp(pars$N, rate))
+  location <- Variable$new('location', rep(0, pars$N))
+  human <- Individual$new('human', list(S, I, R), variables = list(immunity, age, location))
+
+  processes <- list(
+    sirstochastic::individual_S_to_I(S, I, human, immunity, age, location, pars),
+    sirstochastic::individual_I_to_R(I, R, human, immunity, age, location, pars),
+    sirstochastic::individual_R_to_S(S, R, human, immunity, age, location, pars),
+    sirstochastic::render_state_sizes(S, I, R, human)
+  )
+
+  output <- simulate(human, processes, timestep, parameters = list(immunity_level = .2, age_level=0.3))
+
+  df <-   data.frame(S = output$susceptable_counts, I = output$infected_counts, R = output$recovered_counts, time = output$time, type = "Individual",  legend = "Individual", stringsAsFactors = FALSE)
+
+  expect_true(is.data.frame(df))
+
+})
+
+test_that("test individual model with 10000 humans with age effects", {
+  library(individual)
+  library(reshape2)
+
+  pars <- get_parameters()
+  pars[["includeage"]] <- TRUE
+
+  population <- pars$N
+  NI <- pars$I0
+  NR <- 2
+  pops <- population - NI - NR
+  timestep <- pars$num/pars$dt
+
+  S <- State$new('S', pops)
+  I <- State$new('I', NI)
+  R <- State$new('R', NR)
+
+  immunity <- Variable$new('immunity', rep(0, pars$N))
+  rate=1/pars$average_age
+  age <- Variable$new('age', rexp(pars$N, rate))
+  location <- Variable$new('location', rep(0, pars$N))
+  human <- Individual$new('human', list(S, I, R), variables = list(immunity, age, location))
+
+  processes <- list(
+    sirstochastic::individual_S_to_I(S, I, human, immunity, age, location, pars),
+    sirstochastic::individual_I_to_R(I, R, human, immunity, age, location, pars),
+    sirstochastic::individual_R_to_S(S, R, human, immunity, age, location, pars),
+    sirstochastic::render_state_sizes(S, I, R, human)
+  )
+
+  output <- simulate(human, processes, timestep, parameters = list(age_level=0.3))
+
+  df <-   data.frame(S = output$susceptable_counts, I = output$infected_counts, R = output$recovered_counts, time = output$time, type = "Individual",  legend = "Individual", stringsAsFactors = FALSE)
+
+  expect_true(is.data.frame(df))
+
+})
+
+test_that("test individual model with 10000 humans with effects due to location", {
+  library(individual)
+  library(reshape2)
+
+  pars <- get_parameters()
+  pars[["includelocation"]] <- TRUE
+
+  population <- pars$N
+  NI <- pars$I0
+  NR <- 2
+  pops <- population - NI - NR
+  timestep <- pars$num/pars$dt
+
+  S <- State$new('S', pops)
+  I <- State$new('I', NI)
+  R <- State$new('R', NR)
+
+  immunity <- Variable$new('immunity', rep(0, pars$N))
+  age <- Variable$new('age', rep(0, pars$N))
+  location <- Variable$new('location', runif(population, 0, .2))
+  human <- Individual$new('human', list(S, I, R), variables = list(immunity, age, location))
+
+  processes <- list(
+    sirstochastic::individual_S_to_I(S, I, human, immunity, age, location, pars),
+    sirstochastic::individual_I_to_R(I, R, human, immunity, age, location, pars),
+    sirstochastic::individual_R_to_S(S, R, human, immunity, age, location, pars),
+    sirstochastic::render_state_sizes(S, I, R, human)
+  )
+
+  output <- simulate(human, processes, timestep, parameters = list(location_level=0.2))
+
+  df <-   data.frame(S = output$susceptable_counts, I = output$infected_counts, R = output$recovered_counts, time = output$time, type = "Individual",  legend = "Individual", stringsAsFactors = FALSE)
+
+  expect_true(is.data.frame(df))
+
+})
+
+test_that("test individual model with 10000 humans with immunity, age and location effects", {
+  library(individual)
+  library(reshape2)
+
+  pars <- get_parameters()
+  pars[["indludeimmune"]] <- TRUE
+  pars[["includeage"]] <- TRUE
+  pars[["includelocation"]] <- TRUE
+
+  population <- pars$N
+  NI <- pars$I0
+  NR <- 2
+  pops <- population - NI - NR
+  timestep <- pars$num/pars$dt
+
+  S <- State$new('S', pops)
+  I <- State$new('I', NI)
+  R <- State$new('R', NR)
+
+  immunity <- Variable$new('immunity', runif(population, 0, .1))
+  rate=1/pars$average_age
+  age <- Variable$new('age', rexp(pars$N, rate))
+  location <- Variable$new('location', runif(population, 0, .2))
+  human <- Individual$new('human', list(S, I, R), variables = list(immunity, age, location))
+
+  processes <- list(
+    sirstochastic::individual_S_to_I(S, I, human, immunity, age, location, pars),
+    sirstochastic::individual_I_to_R(I, R, human, immunity, age, location, pars),
+    sirstochastic::individual_R_to_S(S, R, human, immunity, age, location, pars),
+    sirstochastic::render_state_sizes(S, I, R, human)
+  )
+
+  output <- simulate(human, processes, timestep, parameters = list(immunity_level = .2, age_level=0.3, location_level = 0.4))
 
   df <-   data.frame(S = output$susceptable_counts, I = output$infected_counts, R = output$recovered_counts, time = output$time, type = "Individual",  legend = "Individual", stringsAsFactors = FALSE)
 

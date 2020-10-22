@@ -28,11 +28,14 @@ Compartmental
 \item \code{n_deaths_R} number of deaths at recovered stage
 \item \code{n_births} number of births
 Individual only
+\item \code{variations} any variations to take into account FALSE if not
 \item \code{average_age} average age for population
 \item \code{includeage} TRUE if age used
 \item \code{includebirth} TRUE if immunity used
 \item \code{indludeimmune} TRUE if immunity used
 \item \code{includelocation} TRUE if location used
+\item \code{infection_rate} rate of infection
+\item \code{recovery_rate} rate of recovery
 }}
 }
 \value{

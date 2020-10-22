@@ -4,7 +4,7 @@
 \alias{individual_S_to_I}
 \title{Infection_process -> S to I}
 \usage{
-individual_S_to_I(S, I, human, pars = NULL)
+individual_S_to_I(S, I, human, immunity, age, location, pars = NULL)
 }
 \arguments{
 \item{S}{susceptible}
@@ -13,11 +13,17 @@ individual_S_to_I(S, I, human, pars = NULL)
 
 \item{human}{human}
 
+\item{immunity}{immunity}
+
+\item{age}{age}
+
+\item{location}{location}
+
 \item{pars}{parameter list}
 }
 \description{
 Infection_process -> S to I
 }
 \examples{
-individual_S_to_I(S, I, human, pars)
+individual_S_to_I(S, I, immunity, age, location, pars)
 }

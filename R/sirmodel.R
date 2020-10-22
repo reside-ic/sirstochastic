@@ -106,7 +106,6 @@ infections <- function(I, S, pars){
   FOI <- (pars$beta * I)/pars$N
   fmu <- FOI + pars$mu
   fmudt <- fmu * pars$dt
-  environment()
 
   prob1 <- 1.0 - exp(-1.0 * fmudt)
   prob2 <- pars$mu/fmu
@@ -246,14 +245,17 @@ displaythemodel <- function(df) {
 #' @param S susceptible
 #' @param I infected
 #' @param human human
+#' @param immunity immunity
+#' @param age age
+#' @param location location
 #' @param pars parameter list
 #'
 #' @export
 #'
 #' @examples
-#' individual_S_to_I(S, I, human, pars)
+#' individual_S_to_I(S, I, immunity, age, location, pars)
 #' @importFrom stats runif
-individual_S_to_I <- function(S, I, human, pars = NULL) {
+individual_S_to_I <- function(S, I, human, immunity, age, location, pars = NULL) {
   function(api) {
 
     pars <- get_parameters(pars)
@@ -262,21 +264,31 @@ individual_S_to_I <- function(S, I, human, pars = NULL) {
     inf <- infections(length(api$get_state(human, I)), length(api$get_state(human, S)), pars)
 
     n_to_infect <- inf$n_infections_S
-
     susceptible <- api$get_state(human, S)
 
+    if(!pars$variations){
+        infected <- susceptible[sample.int(length(susceptible), n_to_infect)]
+        api$queue_state_update(human, I, infected)
+    }
     if(pars$indludeimmune){
       # Get the immunity for susceptible humans and use the complement to modify the
       # infection rate
-      immunity <- Variable$new('immunity', runif(pars$N, 0, .5))
       rate_modifier <- 1 - api$get_variable(human, immunity, susceptible)
-      rate <- .3
-      api$queue_state_update(human, I,
-                             susceptible[runif(length(susceptible)) < (rate * rate_modifier)]
-      )
+      infected <- susceptible[runif(length(susceptible)) < (pars$infection_rate * rate_modifier)]
+      api$queue_state_update(human, I, infected)
     }
-    else{
-      infected <- susceptible[sample.int(length(susceptible), n_to_infect)]
+    if(pars$includeage){
+      # Get the age for susceptible humans and use the complement to modify the
+      # infection rate
+      rate_modifier <- 1 - api$get_variable(human, age, susceptible)
+      infected <- susceptible[runif(length(susceptible)) < (pars$location_rate * rate_modifier)]
+      api$queue_state_update(human, I, infected)
+    }
+    if(pars$includelocation){
+      # Get the location for susceptible humans and use the complement to modify the
+      # infection rate
+      rate_modifier <- 1 - api$get_variable(human, location, susceptible)
+      infected <- susceptible[runif(length(susceptible)) < (pars$location_rate * rate_modifier)]
       api$queue_state_update(human, I, infected)
     }
   }
@@ -287,20 +299,37 @@ individual_S_to_I <- function(S, I, human, pars = NULL) {
 #' @param I infected
 #' @param R recovered
 #' @param human human
+#' @param immunity immunity
+#' @param age age
+#' @param location location
 #' @param pars parameter list
 #'
 #' @export
 #'
 #' @examples
-#' individual_I_to_R(I, R, human, pars)
-individual_I_to_R <- function(I, R, human, pars = NULL) {
+#' individual_I_to_R(I, R, human, immunity, age, location, pars)
+individual_I_to_R <- function(I, R, human, immunity, age, location, pars = NULL) {
   function(api) {
+
     pars <- get_parameters(pars)
     rec <- recoveries(length(api$get_state(human, I)), pars)
     n_to_recover <- rec$n_recoveries_I
     infected <- api$get_state(human, I)
-    recovered <- infected[sample.int(length(infected), n_to_recover)]
-    api$queue_state_update(human, R, recovered)
+
+    if(!pars$variations){
+      recovered <- infected[sample.int(length(infected), n_to_recover)]
+      api$queue_state_update(human, R, recovered)
+    }
+    if(pars$includeage){
+      rate_modifier <- 1 - api$get_variable(human, age, infected)
+      recovered <- infected[runif(length(infected)) < (pars$age_rate * rate_modifier)]
+      api$queue_state_update(human, I, recovered)
+    }
+    if(pars$includelocation){
+      rate_modifier <- 1 - api$get_variable(human, location, infected)
+      recovered <- infected[runif(length(infected)) < (pars$location_rate * rate_modifier)]
+      api$queue_state_update(human, I, recovered)
+    }
   }
 }
 
@@ -309,34 +338,45 @@ individual_I_to_R <- function(I, R, human, pars = NULL) {
 #' @param S susceptible
 #' @param R recovered
 #' @param human human
+#' @param immunity immunity
+#' @param age age
+#' @param location location
 #' @param pars parameter list
 #'
 #' @export
 #'
 #' @examples
-#' individual_R_to_S(S, R, human, pars)
+#' individual_R_to_S(S, R, human, immunity, age, location, pars)
 #' @importFrom stats runif
-individual_R_to_S <- function(S, R, human, pars = NULL) {
+individual_R_to_S <- function(S, R, human, immunity, age, location, pars = NULL) {
   function(api) {
+
     pars <- get_parameters(pars)
     bir <- births(length(api$get_state(human, R)), pars)
     n_to_susceptible <- bir$n_births
     from_state <- api$get_state(human, R)
 
-    if(pars$indludeimmune){
-      immunity <- Variable$new('immunity', runif(pars$N, 0, .5))
-      rate <- .2
-      recovered <- from_state[runif(length(from_state)) < rate]
-      api$queue_state_update(human, R, recovered)
-      api$queue_variable_update(human, immunity, api$get_parameters()$immunity_level, recovered)
-    }
-    else
-    {
+    if(!pars$variations){
       if(length(from_state) != 0 && length(from_state) > n_to_susceptible)
       {
         thenewsusceptible <- from_state[sample.int(length(from_state), n_to_susceptible)]
         api$queue_state_update(human, S, thenewsusceptible)
       }
+    }
+    if(pars$indludeimmune){
+      recovered <- from_state[runif(length(from_state)) < pars$recovery_rate]
+      api$queue_state_update(human, R, recovered)
+      api$queue_variable_update(human, immunity, api$get_parameters()$immunity_level, recovered)
+    }
+    if(pars$includeage){
+      recovered <- from_state[runif(length(from_state)) < pars$age_rate]
+      api$queue_state_update(human, R, recovered)
+      api$queue_variable_update(human, age, api$get_parameters()$age_level, recovered)
+    }
+    if(pars$includelocation){
+      recovered <- from_state[runif(length(from_state)) < pars$recovery_rate]
+      api$queue_state_update(human, R, recovered)
+      api$queue_variable_update(human, age, api$get_parameters()$location_level, recovered)
     }
   }
 }
@@ -357,7 +397,6 @@ render_state_sizes <- function(S, I, R, human) {
     api$render('recovered_counts', length(api$get_state(human, R)))
   }
 }
-
 
 
 

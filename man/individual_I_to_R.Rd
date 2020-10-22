@@ -4,7 +4,7 @@
 \alias{individual_I_to_R}
 \title{Recovery_process -> I to R}
 \usage{
-individual_I_to_R(I, R, human, pars = NULL)
+individual_I_to_R(I, R, human, immunity, age, location, pars = NULL)
 }
 \arguments{
 \item{I}{infected}
@@ -13,11 +13,17 @@ individual_I_to_R(I, R, human, pars = NULL)
 
 \item{human}{human}
 
+\item{immunity}{immunity}
+
+\item{age}{age}
+
+\item{location}{location}
+
 \item{pars}{parameter list}
 }
 \description{
 Recovery_process -> I to R
 }
 \examples{
-individual_I_to_R(I, R, human, pars)
+individual_I_to_R(I, R, human, immunity, age, location, pars)
 }
