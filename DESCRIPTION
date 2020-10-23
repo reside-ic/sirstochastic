@@ -22,6 +22,5 @@ Imports:
     tibble,   
     tidyr,
     individual,
-    ggplot2,
     reshape2
 

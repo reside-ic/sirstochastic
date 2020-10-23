@@ -48,79 +48,79 @@ get_parameters <- function(overrides = list()) {
     pars[[name]] <- overrides[[name]]
   }
 
-  if(pars$beta < 0){
+  if (pars$beta < 0) {
     stop("'beta' must be positive")
   }
 
-  if(pars$nu < 0){
+  if (pars$nu < 0) {
     stop("'nu' must be positive")
   }
 
-  if(pars$mu < 0){
+  if (pars$mu < 0) {
     stop("'mu' must be positive")
   }
 
-  if(pars$prop_immune > 0 || pars$prop_immune < 0){
+  if (pars$prop_immune > 0 || pars$prop_immune < 0) {
     stop("'prop_immune' must be between 0 and 1 (inclusive)")
   }
 
-  if(pars$N <= 0){
+  if (pars$N <= 0) {
     stop("'N' must be positive")
   }
 
-  if(pars$num <= 0){
+  if (pars$num <= 0) {
     stop("'num' must be positive")
   }
 
-  if(pars$I0 > pars$N || pars$I0 < 0){
+  if (pars$I0 > pars$N || pars$I0 < 0) {
     stop("'I0' must be positive and never greater than N")
   }
 
-  if(pars$dt <= 0){
+  if (pars$dt <= 0) {
     stop("'dt' must be positive and greater than 0")
   }
 
-  if(pars$n_deaths_S < 0){
+  if (pars$n_deaths_S < 0) {
     stop("'n_deaths_S' must be positive and greater than or equal to 0")
   }
 
-  if(pars$n_infections_S < 0){
+  if (pars$n_infections_S < 0) {
     stop("'n_infections_S' must be positive and greater than or equal to 0")
   }
 
-  if(pars$n_deaths_I < 0){
+  if (pars$n_deaths_I < 0) {
     stop("'n_deaths_I' must be positive and greater than or equal to 0")
   }
 
-  if(pars$n_recoveries_I < 0){
+  if (pars$n_recoveries_I < 0) {
     stop("'n_recoveries_I' must be positive and greater than or equal to 0")
   }
 
-  if(pars$n_deaths_R < 0){
+  if (pars$n_deaths_R < 0) {
     stop("'n_deaths_R' must be positive and greater than or equal to 0")
   }
 
-  if(pars$n_births < 0){
+  if (pars$n_births < 0) {
     stop("'n_births' must be positive and greater than or equal to 0")
   }
 
-  if(pars$average_age <= 0){
+  if (pars$average_age <= 0) {
     stop("'average_age' must be positive and greater than 0")
   }
 
-  if(pars$infection_rate < 0){
+  if (pars$infection_rate < 0) {
     stop("'infection_rate' must be positive or equal to 0")
   }
 
-  if(pars$recovery_rate < 0){
+  if (pars$recovery_rate < 0) {
     stop("'recovery_rate' must be positive or equal to 0")
   }
 
-  if(pars$age_rate < 0){
+  if (pars$age_rate < 0) {
     stop("'age_rate' must be positive or equal to 0")
   }
 
-  if(pars$location_rate < 0){
+  if (pars$location_rate < 0) {
     stop("'location_rate' must be positive or equal to 0")
   }
 
