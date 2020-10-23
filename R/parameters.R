@@ -25,7 +25,7 @@
 #' * `average_age` average age for population
 #' * `includeage` TRUE if age used
 #' * `includebirth` TRUE if immunity used
-#' * `indludeimmune` TRUE if immunity used
+#' * `includeimmune` TRUE if immunity used
 #' * `includelocation` TRUE if location used
 #' * `infection_rate` rate of infection
 #' * `recovery_rate` rate of recovery
@@ -152,7 +152,7 @@ sir_model_parameters_defaults <- function() {
     average_age = 20,
     includeage = FALSE,
     includebirth = FALSE,
-    indludeimmune = FALSE,
+    includeimmune = FALSE,
     includelocation = FALSE,
     infection_rate = 0.2,
     recovery_rate = 0.2,

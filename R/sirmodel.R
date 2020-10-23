@@ -270,7 +270,7 @@ individual_S_to_I <- function(S, I, human, immunity, age, location, pars = NULL)
         infected <- susceptible[sample.int(length(susceptible), n_to_infect)]
         api$queue_state_update(human, I, infected)
     }
-    if(pars$indludeimmune){
+    if(pars$includeimmune){
       # Get the immunity for susceptible humans and use the complement to modify the
       # infection rate
       rate_modifier <- 1 - api$get_variable(human, immunity, susceptible)
@@ -363,7 +363,7 @@ individual_R_to_S <- function(S, R, human, immunity, age, location, pars = NULL)
         api$queue_state_update(human, S, thenewsusceptible)
       }
     }
-    if(pars$indludeimmune){
+    if(pars$includeimmune){
       recovered <- from_state[runif(length(from_state)) < pars$recovery_rate]
       api$queue_state_update(human, R, recovered)
       api$queue_variable_update(human, immunity, api$get_parameters()$immunity_level, recovered)

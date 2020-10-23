@@ -99,8 +99,8 @@ test_that("test that no one is infected if I is 0 at t = 0", {
 })
 
 test_that("test that an empty simulation exits ok for individual model", {
+
   library(individual)
-  library(reshape2)
 
   population <- 10000
 
@@ -124,8 +124,8 @@ test_that("test that an empty simulation exits ok for individual model", {
 })
 
 test_that("test individual model with 10000 humans", {
+
   library(individual)
-  library(reshape2)
 
   pars <- get_parameters()
 
@@ -161,11 +161,11 @@ test_that("test individual model with 10000 humans", {
 
 
 test_that("test individual model with 10000 humans with immunity", {
+
   library(individual)
-  library(reshape2)
 
   pars <- get_parameters()
-  pars[["indludeimmune"]] <- TRUE
+  pars[["includeimmune"]] <- TRUE
 
   population <- pars$N
   NI <- pars$I0
@@ -198,11 +198,11 @@ test_that("test individual model with 10000 humans with immunity", {
 })
 
 test_that("test individual model with 10000 humans with immunity and age effects", {
+
   library(individual)
-  library(reshape2)
 
   pars <- get_parameters()
-  pars[["indludeimmune"]] <- TRUE
+  pars[["includeimmune"]] <- TRUE
   pars[["includeage"]] <- TRUE
 
   population <- pars$N
@@ -237,8 +237,8 @@ test_that("test individual model with 10000 humans with immunity and age effects
 })
 
 test_that("test individual model with 10000 humans with age effects", {
+
   library(individual)
-  library(reshape2)
 
   pars <- get_parameters()
   pars[["includeage"]] <- TRUE
@@ -275,8 +275,8 @@ test_that("test individual model with 10000 humans with age effects", {
 })
 
 test_that("test individual model with 10000 humans with effects due to location", {
+
   library(individual)
-  library(reshape2)
 
   pars <- get_parameters()
   pars[["includelocation"]] <- TRUE
@@ -312,11 +312,11 @@ test_that("test individual model with 10000 humans with effects due to location"
 })
 
 test_that("test individual model with 10000 humans with immunity, age and location effects", {
+
   library(individual)
-  library(reshape2)
 
   pars <- get_parameters()
-  pars[["indludeimmune"]] <- TRUE
+  pars[["includeimmune"]] <- TRUE
   pars[["includeage"]] <- TRUE
   pars[["includelocation"]] <- TRUE
 
@@ -350,3 +350,4 @@ test_that("test individual model with 10000 humans with immunity, age and locati
   expect_true(is.data.frame(df))
 
 })
+
