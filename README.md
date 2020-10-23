@@ -10,7 +10,8 @@ status](https://github.com/reside-ic/sirstochastic/workflows/R-CMD-check/badge.s
 <!-- badges: end -->
 
 The goal of package sirstochastic is to run simulations of single and
-multiple iterations of the SIR stochastic model.
+multiple iterations of the SIR stochastic model, compartmental and
+individual.
 
 ## Installation
 
@@ -28,6 +29,8 @@ And the development version from [GitHub](https://github.com/) with:
 # install.packages("devtools")
 devtools::install_github("reside-ic/sirstochastic")
 ```
+
+## COMPARTMENTAL
 
 ## Equations
 
@@ -56,6 +59,20 @@ This time the model is run a 100 times for 10,000 iterations with a time
 step of 0.01 using the same code.
 
 <img src="man/figures/README-100runs10000points-1.png" width="100%" />
+
+## INDIVIDUAL
+
+## SIR individul model with same probabilities as compartmental
+
+    #> Skipping install of 'individual' from a github remote, the SHA1 (f0c161d5) has not changed since last install.
+    #>   Use `force = TRUE` to force installation
+    #> 
+    #> Attaching package: 'individual'
+    #> The following object is masked from 'package:stats':
+    #> 
+    #>     simulate
+
+<img src="man/figures/README-1run10000pointsindividual-1.png" width="100%" />
 
 ## License
 

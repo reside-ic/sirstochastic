@@ -2,7 +2,9 @@
 % Please edit documentation in R/sirmodel.R
 \name{compartmental_sirmodel}
 \alias{compartmental_sirmodel}
-\title{Stochastic SIR model}
+\title{Stochastic SIR model, compartmental
+
+This takes N iterations for time step dt}
 \usage{
 compartmental_sirmodel(end_time, pars = NULL)
 }
@@ -15,6 +17,8 @@ compartmental_sirmodel(end_time, pars = NULL)
 dataframe
 }
 \description{
+Stochastic SIR model, compartmental
+
 This takes N iterations for time step dt
 }
 \examples{

@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 [![R build status](https://github.com/reside-ic/sirstochastic/workflows/R-CMD-check/badge.svg)](https://github.com/reside-ic/sirstochastic/actions)
 <!-- badges: end -->
 
-The goal of package sirstochastic is to run simulations of single and multiple iterations of the SIR stochastic model.
+The goal of package sirstochastic is to run simulations of single and multiple iterations of the SIR stochastic model, compartmental and individual.
 
 ## Installation
 
@@ -36,8 +36,9 @@ And the development version from [GitHub](https://github.com/) with:
 # install.packages("devtools")
 devtools::install_github("reside-ic/sirstochastic")
 ```
-
+## COMPARTMENTAL
 ## Equations
+
 The equations defining the model are:
 
 * dS/dt = - beta * S * I / N
@@ -74,6 +75,46 @@ sirstochastic:::displaythemodel(df)
 
 ```
 
+## INDIVIDUAL
+
+## SIR individul model with same probabilities as compartmental
+
+```{r 1run10000pointsindividual, echo=FALSE}
+library('remotes')
+install_github('mrc-ide/individual')
+library(individual)
+library(ggplot2)
+library(reshape2)
+
+options(warn = - 1) 
+pars <- sirstochastic::get_parameters()
+
+population <- pars$N
+NI <- pars$I0
+NR <- 2
+pops <- population - NI - NR
+timestep <- pars$num/pars$dt
+
+S <- State$new('S', pops)
+I <- State$new('I', NI)
+R <- State$new('R', NR)
+
+human <- Individual$new('human', list(S, I, R))
+
+processes <- list(
+  sirstochastic::individual_S_to_I(S, I, human, pars),
+  sirstochastic::individual_I_to_R(I, R, human, pars),
+  sirstochastic::individual_R_to_S(S, R, human, pars),
+  sirstochastic::render_state_sizes(S, I, R, human)
+)
+
+output <- simulate(human, processes, timestep)
+
+df <-   data.frame(S = output$susceptable_counts, I = output$infected_counts, R = output$recovered_counts, time = output$time, type = "Individual",  legend = "Individual", stringsAsFactors = FALSE)
+
+sirstochastic:::displaythemodel(df)
+
+```
 
 ## License
 
