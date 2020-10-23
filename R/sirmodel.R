@@ -238,6 +238,7 @@ displaythemodel <- function(df) {
     plot.subtitle = ggplot2::element_text(size = 13),
     axis.title.x = ggplot2::element_text(size = 16, color = '#333333'),
     axis.title.y = ggplot2::element_text(angle = 0, vjust = .5))
+
 }
 
 #' @title Infection_process -> S to I
